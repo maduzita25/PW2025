@@ -1,46 +1,26 @@
+{% extends "paginas/index.html" %}
+
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Sobre Nós - Sistema de Sugestões IFPR Paranavaí</title>
-    <link rel="stylesheet" href="{% static 'css/estilo.css' %}" />
-</head>
-<body>
 
-    <h4>Menu Superior</h4>
-    <ul class="menu">
-        <li><a href="{% url 'index' %}">Início</a></li>
-        <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
-    </ul>
+{% block conteudo %}
+<h3>Sobre o Sistema de Sugestões para o Campus Paranavaí</h3>
+<p>
+    Este sistema foi desenvolvido com o objetivo de promover a participação ativa da comunidade acadêmica do Campus Paranavaí do IFPR.
+    Através dele, alunos, professores e funcionários podem enviar sugestões de melhorias para o campus, contribuindo para um ambiente mais
+    agradável, funcional e inovador.
+</p>
 
-    <div id="conteudo">
-        <h3>Sobre o Sistema de Sugestões para o Campus Paranavaí</h3>
-        <p>
-            Este sistema foi desenvolvido com o objetivo de promover a participação ativa da comunidade acadêmica do Campus Paranavaí do IFPR.
-            Através dele, alunos, professores e funcionários podem enviar sugestões de melhorias para o campus, contribuindo para um ambiente mais
-            agradável, funcional e inovador.
-        </p>
+<p>
+    Acreditamos que a colaboração e o diálogo são fundamentais para o desenvolvimento contínuo da nossa instituição.
+    Por isso, todas as sugestões são avaliadas com atenção pela administração do campus, que busca implementar mudanças que beneficiem a todos.
+</p>
 
-        <p>
-            Acreditamos que a colaboração e o diálogo são fundamentais para o desenvolvimento contínuo da nossa instituição.
-            Por isso, todas as sugestões são avaliadas com atenção pela administração do campus, que busca implementar mudanças que beneficiem a todos.
-        </p>
+<p>
+    Nosso compromisso é transformar suas ideias em ações que promovam qualidade, conforto e eficiência para todos os que fazem parte do IFPR Paranavaí.
+</p>
 
-        <p>
-            Nosso compromisso é transformar suas ideias em ações que promovam qualidade, conforto e eficiência para todos os que fazem parte do IFPR Paranavaí.
-        </p>
-
-        <p>
-            <strong>Desenvolvido por Carlos e Maria Eduarda.</strong>
-        </p>
-    </div>
-
-    <footer id="rodape">
-        &copy; 2025 IFPR - Campus Paranavaí
-    </footer>
-
-</body>
-</html>
+<p>
+    <strong>Desenvolvido por Carlos e Maria Eduarda.</strong>
+</p>
+{% endblock %}

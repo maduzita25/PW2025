@@ -1,36 +1,33 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>{% block titulo %}SISTEMA WEB - SUGESTÃO DE MELHORIAS PARA O CAMPUS - PARANAVAÍ{% endblock %}</title>
-
+    <title>Início - Sistema de Sugestões IFPR Paranavaí</title>
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}" />
 </head>
 <body>
 
-    <header>
-        <h1>Menu Superior</h1>
-        <nav>
-            <ul class="menu">
-                <li><a href="{% url 'index' %}">Início</a></li>
-                <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
-            </ul>
-        </nav>
-    </header>
+    <ul class="menu">
+        <li><a href="{% url 'index' %}">Início</a></li>
+        <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
+        <li><a href="{% url 'inserir-sugestao' %}">Sugestões</a></li>
+        <li><a href="{% url 'inserir-categoria' %}">categoria</a></li>
+        <li><a href="{% url 'inserir-sugestao' %}">Sugestões</a></li>
+        <li><a href="{% url 'inserir-sugestao' %}">Sugestões</a></li>
+    </ul>
 
-    <main>
+    <div id="conteudo">
         {% block conteudo %}
-        <h2>Seja Bem-vindo!</h2>
-        <p>Esta é a página inicial do sistema.</p>
+        <h2>Bem-vindo ao Sistema de Sugestões de Melhorias</h2>
+        <p>Participe ativamente do desenvolvimento do campus com suas ideias e sugestões!</p>
         {% endblock %}
-    </main>
+    </div>
 
-    <footer>
-        <p>Desenvolvido por Carlos e Maria Eduarda</p>
+    <footer id="rodape">
+        &copy; 2025 IFPR - Campus Paranavaí
     </footer>
 
 </body>
