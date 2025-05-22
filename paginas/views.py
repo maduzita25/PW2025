@@ -2,17 +2,20 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 
-from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao
+from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Usuario
 
 # PÁGINAS ESTÁTICAS
 class IndexView(TemplateView):
     template_name = "paginas/index.html"
 
+
 class SobreView(TemplateView):
     template_name = "paginas/sobre.html"
 
+
 class SugestoesView(TemplateView):
     template_name = "paginas/sugestoes.html"
+
 
 # CREATE VIEWS
 class CampusCreate(CreateView):
@@ -20,44 +23,56 @@ class CampusCreate(CreateView):
     fields = ['nome']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Campus'}
+    extra_context = {'titulo': 'Cadastro de Campus', 'botao': 'Cadastrar'}
+
 
 class CategoriaCreate(CreateView):
     model = Categoria
     fields = ['nome']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Categoria'}
-
+    extra_context = {'titulo': 'Cadastro de Categoria', 'botao': 'Cadastrar'}
 
 
 class SugestaoCreate(CreateView):
     model = Sugestao
-    fields = ['titulo', 'descricao', 'nome', 'campus', 'categorias',  'prioridade', 'anexos']
+    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categorias', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Sugestão'}
+    extra_context = {'titulo': 'Cadastro de Sugestão', 'botao': 'Cadastrar'}
+
 
 class ComentarioCreate(CreateView):
     model = Comentario
-    fields = ['texto', 'nome', 'sugestao']
+    fields = ['texto', 'usuario', 'sugestao']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Comentário'}
+    extra_context = {'titulo': 'Cadastro de Comentário', 'botao': 'Cadastrar'}
+
 
 class CursoCreate(CreateView):
     model = Curso
     fields = ['nome', 'campus']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Curso'}
+    extra_context = {'titulo': 'Cadastro de Curso', 'botao': 'Cadastrar'}
+
 
 class TipoSolicitacaoCreate(CreateView):
     model = TipoSolicitacao
     fields = ['descricao', 'concluido']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Tipo de Solicitação'}
+    extra_context = {'titulo': 'Cadastro de Tipo de Solicitação', 'botao': 'Cadastrar'}
+
+
+class UsuarioCreate(CreateView):
+    model = Usuario
+    fields = ['nome', 'email', 'telefone', 'campus']  # Substitua pelos campos reais do modelo Cadastro
+    template_name = 'paginas/form.html'
+    success_url = reverse_lazy('index')
+    extra_context = {'titulo': 'Cadastro de Usuario', 'botao': 'Cadastrar'}
+
 
 # UPDATE VIEWS
 class CampusUpdate(UpdateView):
@@ -66,6 +81,7 @@ class CampusUpdate(UpdateView):
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Atualização de Campus', 'botao': 'Salvar'}
+
 
 class CategoriaUpdate(UpdateView):
     model = Categoria
@@ -77,17 +93,19 @@ class CategoriaUpdate(UpdateView):
 
 class SugestaoUpdate(UpdateView):
     model = Sugestao
-    fields = ['titulo', 'descricao', 'nome', 'campus', 'categorias', 'status', 'prioridade', 'anexos']
+    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categorias', 'status', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Atualização de Sugestão', 'botao': 'Salvar'}
 
+
 class ComentarioUpdate(UpdateView):
     model = Comentario
-    fields = ['texto', 'nome', 'sugestao']
+    fields = ['texto', 'usuario', 'sugestao']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Atualização de Comentário', 'botao': 'Salvar'}
+
 
 class CursoUpdate(UpdateView):
     model = Curso
@@ -96,9 +114,18 @@ class CursoUpdate(UpdateView):
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Atualização de Curso', 'botao': 'Salvar'}
 
+
 class TipoSolicitacaoUpdate(UpdateView):
     model = TipoSolicitacao
     fields = ['descricao', 'concluido']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Atualização de Tipo de Solicitação', 'botao': 'Salvar'}
+
+
+class UsuarioUpdate(UpdateView):
+    model = Usuario
+    fields = ['campo1', 'campo2', 'campo3']  # Substitua pelos campos reais do modelo Cadastro
+    template_name = 'paginas/form.html'
+    success_url = reverse_lazy('index')
+    extra_context = {'titulo': 'Atualização de Usuario', 'botao': 'Salvar'}

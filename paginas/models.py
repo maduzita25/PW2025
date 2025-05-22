@@ -14,6 +14,16 @@ class Categoria(models.Model):
         return self.nome
 
 
+class Usuario(models.Model):
+    nome = models.CharField(max_length=100)
+    email = models.EmailField()
+    telefone = models.CharField(max_length=20, blank=True)
+    campus = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nome
+
+
 class Sugestao(models.Model):
     STATUS_CHOICES = [
         ('aberta', 'Aberta'),
@@ -29,10 +39,9 @@ class Sugestao(models.Model):
         ('alta', 'Alta'),
     ]
 
-
     titulo = models.CharField(max_length=200)
     descricao = models.TextField()
-    nome = models.CharField(max_length=100)  # Agora é campo de texto
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE)
     categorias = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     data_criacao = models.DateTimeField(auto_now_add=True)
@@ -44,10 +53,12 @@ class Sugestao(models.Model):
         return self.titulo
 
 
+
+
 class Comentario(models.Model):
     texto = models.TextField()
     data_comentario = models.DateTimeField(auto_now_add=True)
-    nome = models.CharField(max_length=100)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     sugestao = models.ForeignKey(Sugestao, on_delete=models.CASCADE, related_name='comentarios')
 
     def __str__(self):
