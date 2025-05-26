@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
 
-from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Usuario
+from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil
 
 # PÁGINAS ESTÁTICAS
 class IndexView(TemplateView):
@@ -36,7 +36,7 @@ class CategoriaCreate(CreateView):
 
 class SugestaoCreate(CreateView):
     model = Sugestao
-    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categorias', 'prioridade', 'anexos']
+    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categoria', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Cadastro de Sugestão', 'botao': 'Cadastrar'}
@@ -66,12 +66,12 @@ class TipoSolicitacaoCreate(CreateView):
     extra_context = {'titulo': 'Cadastro de Tipo de Solicitação', 'botao': 'Cadastrar'}
 
 
-class UsuarioCreate(CreateView):
-    model = Usuario
-    fields = ['nome', 'email', 'telefone', 'campus']  # Substitua pelos campos reais do modelo Cadastro
+class PerfilCreate(CreateView):
+    model = Perfil
+    fields = ['nome', 'telefone', 'campus']  # Substitua pelos campos reais do modelo Cadastro
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Cadastro de Usuario', 'botao': 'Cadastrar'}
+    extra_context = {'titulo': 'Cadastro de Perfil', 'botao': 'Cadastrar'}
 
 
 # UPDATE VIEWS
@@ -93,7 +93,7 @@ class CategoriaUpdate(UpdateView):
 
 class SugestaoUpdate(UpdateView):
     model = Sugestao
-    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categorias', 'status', 'prioridade', 'anexos']
+    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categoria', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
     extra_context = {'titulo': 'Atualização de Sugestão', 'botao': 'Salvar'}
@@ -123,9 +123,9 @@ class TipoSolicitacaoUpdate(UpdateView):
     extra_context = {'titulo': 'Atualização de Tipo de Solicitação', 'botao': 'Salvar'}
 
 
-class UsuarioUpdate(UpdateView):
-    model = Usuario
-    fields = ['campo1', 'campo2', 'campo3']  # Substitua pelos campos reais do modelo Cadastro
+class PerfilUpdate(UpdateView):
+    model = Perfil
+    fields = ['nome', 'telefone', 'campus']  # Substitua pelos campos reais do modelo Cadastro
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('index')
-    extra_context = {'titulo': 'Atualização de Usuario', 'botao': 'Salvar'}
+    extra_context = {'titulo': 'Atualização de Perfil', 'botao': 'Salvar'}

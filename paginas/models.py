@@ -1,4 +1,21 @@
 from django.db import models
+from django.contrib.auth.models import User
+
+
+STATUS_CHOICES = [
+    ('aberta', 'Aberta'),
+    ('analise', 'Em análise'),
+    ('andamento', 'Em andamento'),
+    ('concluida', 'Concluída'),
+    ('rejeitada', 'Rejeitada'),
+]
+
+PRIORIDADE_CHOICES = [
+    ('baixa', 'Baixa'),
+    ('media', 'Média'),
+    ('alta', 'Alta'),
+]
+
 
 class Campus(models.Model):
     nome = models.CharField(max_length=100)
@@ -14,51 +31,36 @@ class Categoria(models.Model):
         return self.nome
 
 
-class Usuario(models.Model):
+class Perfil(models.Model):
     nome = models.CharField(max_length=100)
-    email = models.EmailField()
-    telefone = models.CharField(max_length=20, blank=True)
-    campus = models.CharField(max_length=100)
+    telefone = models.CharField(max_length=15, blank=True)
+    campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.nome
 
 
 class Sugestao(models.Model):
-    STATUS_CHOICES = [
-        ('aberta', 'Aberta'),
-        ('analise', 'Em análise'),
-        ('andamento', 'Em andamento'),
-        ('concluida', 'Concluída'),
-        ('rejeitada', 'Rejeitada'),
-    ]
-
-    PRIORIDADE_CHOICES = [
-        ('baixa', 'Baixa'),
-        ('media', 'Média'),
-        ('alta', 'Alta'),
-    ]
 
     titulo = models.CharField(max_length=200)
     descricao = models.TextField()
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    campus = models.ForeignKey(Campus, on_delete=models.CASCADE)
-    categorias = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
     data_criacao = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='aberta')
     prioridade = models.CharField(max_length=10, choices=PRIORIDADE_CHOICES, blank=True, null=True)
     anexos = models.FileField(upload_to='anexos/', blank=True, null=True)
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self):
         return self.titulo
 
 
-
-
 class Comentario(models.Model):
     texto = models.TextField()
     data_comentario = models.DateTimeField(auto_now_add=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     sugestao = models.ForeignKey(Sugestao, on_delete=models.CASCADE, related_name='comentarios')
 
     def __str__(self):
