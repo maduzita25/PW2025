@@ -4,6 +4,7 @@ from .views import (
     IndexView, SobreView, SugestoesView,
     CampusCreate, CategoriaCreate, SugestaoCreate, ComentarioCreate, CursoCreate, TipoSolicitacaoCreate, PerfilCreate,
     CampusUpdate, CategoriaUpdate, SugestaoUpdate, ComentarioUpdate, CursoUpdate, TipoSolicitacaoUpdate, PerfilUpdate,
+    CursoList, CampusList, CursoDelete
 )
 
 urlpatterns = [
@@ -29,4 +30,11 @@ urlpatterns = [
     path("editar/curso/<int:pk>/", CursoUpdate.as_view(), name="editar-curso"),
     path("editar/tiposolicitacao/<int:pk>/", TipoSolicitacaoUpdate.as_view(), name="editar-tiposolicitacao"),
     path("editar/usuario/<int:pk>/", PerfilUpdate.as_view(), name="editar-perfil"),
+
+    # ROTAS DE LISTAGEM
+    path("listar/campi/", CampusList.as_view(), name="listar-campus"),
+    path("listar/cursos/", CursoList.as_view(), name="listar-curso"),
+
+    # ROTA DE EXCLUSÃO
+    path("excluir/curso/<int:pk>/", CursoDelete.as_view(), name="excluir-curso"),
 ]
