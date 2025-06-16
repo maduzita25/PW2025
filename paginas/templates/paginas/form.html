@@ -8,13 +8,17 @@
 {% block conteudo %}
 <h3> {{titulo}} </h3>
 
-<form action-"" method="POST">
+<form action-"" method="POST" id="form-django">
 
     {% csrf_token %}
 
     {{form.as_p}}
 
-    <button type="submit" >Salvar</button>
+    {% if botao == "Excluir" %}
+    <h5>Deseja Excluir o registro: {{object}}?</h5>
+    {% endif %}
+
+    <button type="submit" >{{botao}}</button>
 
 </form>
 {% endblock %}

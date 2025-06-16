@@ -4,7 +4,8 @@ from .views import (
     IndexView, SobreView, SugestoesView,
     CampusCreate, CategoriaCreate, SugestaoCreate, ComentarioCreate, CursoCreate, TipoSolicitacaoCreate, PerfilCreate,
     CampusUpdate, CategoriaUpdate, SugestaoUpdate, ComentarioUpdate, CursoUpdate, TipoSolicitacaoUpdate, PerfilUpdate,
-    CursoList, CampusList, CursoDelete
+    CampusList, CategoriaList, SugestaoList, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
+    CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
 )
 
 urlpatterns = [
@@ -33,8 +34,21 @@ urlpatterns = [
 
     # ROTAS DE LISTAGEM
     path("listar/campi/", CampusList.as_view(), name="listar-campus"),
-    path("listar/cursos/", CursoList.as_view(), name="listar-curso"),
+    path("listar/categoria/", CategoriaList.as_view(), name="listar-categoria"),
+    path("listar/sugestao/", SugestaoList.as_view(), name="listar-sugestao"),
+    path("listar/comentario/", ComentarioList.as_view(), name="listar-comentario"),
+    path("listar/curso/", CursoList.as_view(), name="listar-curso"),
+    path("listar/tiposolicitacao/", TipoSolicitacaoList.as_view(), name="listar-tiposolicitacao"),
+    path("listar/perfil/", PerfilList.as_view(), name="listar-perfil"),
+
+
 
     # ROTA DE EXCLUSÃO
+    path("excluir/campus/<int:pk>/", CampusDelete.as_view(), name="excluir-campus"),
+    path("excluir/categoria/<int:pk>/", CategoriaDelete.as_view(), name="excluir-categoria"),
+    path("excluir/sugestao/<int:pk>/", SugestaoDelete.as_view(), name="excluir-sugestao"),
+    path("excluir/comentario/<int:pk>/", ComentarioDelete.as_view(), name="excluir-comentario"),
     path("excluir/curso/<int:pk>/", CursoDelete.as_view(), name="excluir-curso"),
+    path("excluir/tiposolicitacao/<int:pk>/", TipoSolicitacaoDelete.as_view(), name="excluir-tiposolicitacao"),
+    path("excluir/perfil/<int:pk>/", PerfilDelete.as_view(), name="excluir-perfil"),
 ]
