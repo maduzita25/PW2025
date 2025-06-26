@@ -4,6 +4,8 @@ from django.urls import reverse_lazy
 
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 # PÁGINAS ESTÁTICAS
 class IndexView(TemplateView):
     template_name = "paginas/index.html"
@@ -15,49 +17,49 @@ class SugestoesView(TemplateView):
     template_name = "paginas/sugestoes.html"
 
 # CREATE VIEWS
-class CampusCreate(CreateView):
+class CampusCreate(LoginRequiredMixin, CreateView):
     model = Campus
     fields = ['nome']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-campus')
     extra_context = {'titulo': 'Cadastro de Campus', 'botao': 'Cadastrar'}
 
-class CategoriaCreate(CreateView):
+class CategoriaCreate(LoginRequiredMixin, CreateView):
     model = Categoria
     fields = ['nome']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-categoria')
     extra_context = {'titulo': 'Cadastro de Categoria', 'botao': 'Cadastrar'}
 
-class SugestaoCreate(CreateView):
+class SugestaoCreate(LoginRequiredMixin, CreateView):
     model = Sugestao
     fields = ['titulo', 'descricao', 'usuario', 'campus', 'categoria', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-sugestao')
     extra_context = {'titulo': 'Cadastro de Sugestão', 'botao': 'Cadastrar'}
 
-class ComentarioCreate(CreateView):
+class ComentarioCreate(LoginRequiredMixin, CreateView):
     model = Comentario
     fields = ['texto', 'usuario', 'sugestao']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-comentario')
     extra_context = {'titulo': 'Cadastro de Comentário', 'botao': 'Cadastrar'}
 
-class CursoCreate(CreateView):
+class CursoCreate(LoginRequiredMixin, CreateView):
     model = Curso
     fields = ['nome', 'campus']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-curso')
     extra_context = {'titulo': 'Cadastro de Curso', 'botao': 'Cadastrar'}
 
-class TipoSolicitacaoCreate(CreateView):
+class TipoSolicitacaoCreate(LoginRequiredMixin, CreateView):
     model = TipoSolicitacao
     fields = ['descricao', 'concluido']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-tiposolicitacao')
     extra_context = {'titulo': 'Cadastro de Tipo de Solicitação', 'botao': 'Cadastrar'}
 
-class PerfilCreate(CreateView):
+class PerfilCreate(LoginRequiredMixin, CreateView):
     model = Perfil
     fields = ['nome', 'telefone', 'campus']
     template_name = 'paginas/form.html'

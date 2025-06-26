@@ -179,6 +179,7 @@ table a:hover{
 
 /* Campos de entrada e seleção */
 #form-django input[type="text"],
+#form-django input[type="password"],
 #form-django input[type="file"],
 #form-django textarea,
 #form-django select {
@@ -194,6 +195,7 @@ table a:hover{
 }
 
 #form-django input[type="text"]:focus,
+#form-django input[type="password"],
 #form-django input[type="file"]:focus,
 #form-django textarea:focus,
 #form-django select:focus {

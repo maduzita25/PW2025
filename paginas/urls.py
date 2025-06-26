@@ -7,9 +7,36 @@ from .views import (
     CampusList, CategoriaList, SugestaoList, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
     CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
 )
+from django.contrib.auth import views as auth_views
+
+
+
 
 urlpatterns = [
+
     # PÁGINAS ESTÁTICAS
+    path("login/", auth_views.LoginView.as_view( 
+         template_name = 'paginas/form.html',
+         extra_context = {
+             'titulo': 'Autenticação',
+             'botao' : 'Entrar',
+         }
+    ),name="login"),
+
+    path("senha/", auth_views.PasswordChangeView.as_view( 
+         template_name = 'paginas/form.html',
+         extra_context = {
+             'titulo': 'Atualizar senha',
+             'botao' : 'Salvar',
+         }
+    ),name="senha"),
+
+
+
+    #criar uma rota de logout
+    path("sair/", auth_views.LogoutView.as_view(), name="logout"),
+
+
     path("", IndexView.as_view(), name="index"),
     path("sobre/", SobreView.as_view(), name="sobre"),
     path("sugestoes/", SugestoesView.as_view(), name="sugestoes"),
