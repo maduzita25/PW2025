@@ -17,6 +17,7 @@ PRIORIDADE_CHOICES = [
 ]
 
 
+
 class Campus(models.Model):
     nome = models.CharField(max_length=100)
 
@@ -35,14 +36,14 @@ class Perfil(models.Model):
     nome = models.CharField(max_length=100)
     telefone = models.CharField(max_length=15, blank=True)
     campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
-    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
+
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
 
     def __str__(self):
         return self.nome
 
 
 class Sugestao(models.Model):
-
     titulo = models.CharField(max_length=200)
     descricao = models.TextField()
     campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
@@ -64,7 +65,7 @@ class Comentario(models.Model):
     sugestao = models.ForeignKey(Sugestao, on_delete=models.CASCADE, related_name='comentarios')
 
     def __str__(self):
-        return f"Comentário por {self.nome} em {self.sugestao.titulo}"
+        return f"Comentário por {self.usuario.username} em {self.sugestao.titulo}"
 
 
 class Curso(models.Model):
