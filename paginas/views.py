@@ -1,6 +1,8 @@
 from django.views.generic import TemplateView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView
 
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil
 
@@ -67,49 +69,49 @@ class PerfilCreate(LoginRequiredMixin, CreateView):
     extra_context = {'titulo': 'Cadastro de Perfil', 'botao': 'Cadastrar'}
 
 # UPDATE VIEWS
-class CampusUpdate(UpdateView):
+class CampusUpdate(LoginRequiredMixin, UpdateView):
     model = Campus
     fields = ['nome']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-campus')
     extra_context = {'titulo': 'Atualização de Campus', 'botao': 'Salvar'}
 
-class CategoriaUpdate(UpdateView):
+class CategoriaUpdate(LoginRequiredMixin, UpdateView):
     model = Categoria
     fields = ['nome']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-categoria')
     extra_context = {'titulo': 'Atualização de Categoria', 'botao': 'Salvar'}
 
-class SugestaoUpdate(UpdateView):
+class SugestaoUpdate(LoginRequiredMixin, UpdateView):
     model = Sugestao
     fields = ['titulo', 'descricao', 'usuario', 'campus', 'categoria', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-sugestao')
     extra_context = {'titulo': 'Atualização de Sugestão', 'botao': 'Salvar'}
 
-class ComentarioUpdate(UpdateView):
+class ComentarioUpdate(LoginRequiredMixin, UpdateView):
     model = Comentario
     fields = ['texto', 'usuario', 'sugestao']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-comentario')
     extra_context = {'titulo': 'Atualização de Comentário', 'botao': 'Salvar'}
 
-class CursoUpdate(UpdateView):
+class CursoUpdate(LoginRequiredMixin, UpdateView):
     model = Curso
     fields = ['nome', 'campus']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-curso')
     extra_context = {'titulo': 'Atualização de Curso', 'botao': 'Salvar'}
 
-class TipoSolicitacaoUpdate(UpdateView):
+class TipoSolicitacaoUpdate(LoginRequiredMixin, UpdateView):
     model = TipoSolicitacao
     fields = ['descricao', 'concluido']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-tiposolicitacao')
     extra_context = {'titulo': 'Atualização de Tipo de Solicitação', 'botao': 'Salvar'}
 
-class PerfilUpdate(UpdateView):
+class PerfilUpdate(LoginRequiredMixin, UpdateView):
     model = Perfil
     fields = ['nome', 'telefone', 'campus']
     template_name = 'paginas/form.html'
@@ -119,74 +121,74 @@ class PerfilUpdate(UpdateView):
 
 # LIST VIEWS
 
-class CampusList(ListView):
+class CampusList(LoginRequiredMixin, ListView):
     model = Campus
     template_name = 'paginas/listas/campus.html'
 
-class CategoriaList(ListView):
+class CategoriaList(LoginRequiredMixin, ListView):
     model = Categoria
     template_name = 'paginas/listas/categoria.html'
 
-class SugestaoList(ListView):
+class SugestaoList(LoginRequiredMixin, ListView):
     model = Sugestao
     template_name = 'paginas/listas/sugestao.html'
 
-class ComentarioList(ListView):
+class ComentarioList(LoginRequiredMixin, ListView):
     model = Comentario
     template_name = 'paginas/listas/comentario.html'
 
-class CursoList(ListView):
+class CursoList(LoginRequiredMixin, ListView):
     model = Curso
     template_name = 'paginas/listas/curso.html'
 
-class TipoSolicitacaoList(ListView):
+class TipoSolicitacaoList(LoginRequiredMixin, ListView):
     model = TipoSolicitacao
     template_name = 'paginas/listas/tiposolicitacao.html'
 
-class PerfilList(ListView):
+class PerfilList(LoginRequiredMixin, ListView):
     model = Perfil
     template_name = 'paginas/listas/perfil.html'
 
 
 # DELETE VIEWS: Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil
 
-class CampusDelete(DeleteView):
+class CampusDelete(LoginRequiredMixin, DeleteView):
     model = Campus
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-campus')
     extra_context = {'titulo': 'Excluir Campus', 'botao': 'Excluir'}
 
-class CategoriaDelete(DeleteView):
+class CategoriaDelete(LoginRequiredMixin, DeleteView):
     model = Categoria
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-categoria')
     extra_context = {'titulo': 'Excluir Categoria', 'botao': 'Excluir'}
 
-class SugestaoDelete(DeleteView):
+class SugestaoDelete(LoginRequiredMixin, DeleteView):
     model = Sugestao
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-sugestao')
     extra_context = {'titulo': 'Excluir Sugestao', 'botao': 'Excluir'}
 
-class ComentarioDelete(DeleteView):
+class ComentarioDelete(LoginRequiredMixin, DeleteView):
     model = Comentario
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-comentario')
     extra_context = {'titulo': 'Excluir Comenatrio', 'botao': 'Excluir'}
 
-class CursoDelete(DeleteView):
+class CursoDelete(LoginRequiredMixin, DeleteView):
     model = Curso
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-curso')
     extra_context = {'titulo': 'Excluir Curso', 'botao': 'Excluir'}
 
-class TipoSolicitacaoDelete(DeleteView):
+class TipoSolicitacaoDelete(LoginRequiredMixin, DeleteView):
     model = TipoSolicitacao
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-tiposolicitacao')
     extra_context = {'titulo': 'Excluir Tipo Solicitacao', 'botao': 'Excluir'}
 
-class PerfilDelete(DeleteView):
+class PerfilDelete(LoginRequiredMixin, DeleteView):
     model = Perfil
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-perfil')
