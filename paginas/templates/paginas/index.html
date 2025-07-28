@@ -44,5 +44,13 @@
         &copy; 2025 IFPR - Campus Paranavaí
     </footer>
 
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 </body>
 </html>
