@@ -12,6 +12,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>Nome</th>
+                    <th>Cadastrado em</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -20,8 +21,11 @@
                 <tr>
                     <td>{{ campus.nome }}</td>
                     <td>
-                        <a class="btn btn-warning btn-sm" href="{% url 'editar-campus' campus.pk %}">✏️</a>
-                        <a class="btn btn-danger btn-sm" href="{% url 'excluir-campus' campus.pk %}">🗑️</a>
+                        <td>{{ campus.cadastrado_em|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <a class="btn btn-warning btn-sm" href="{% url 'editar-campus' campus.pk %}">✏️</a>
+                            <a class="btn btn-danger btn-sm" href="{% url 'excluir-campus' campus.pk %}">🗑️</a>
+                        </td>
                     </td>
                 </tr>
                 {% empty %}

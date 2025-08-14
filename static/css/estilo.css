@@ -126,15 +126,17 @@ table thead {
 
 table thead th {
     padding: 12px 15px;
-    text-align: left;
+    text-align: left;  /* Alinha texto à esquerda */
     font-weight: 600;
 }
 
 /* Corpo da tabela */
 table tbody td {
-    padding: 12px 15px;
+    padding: 12px 15px; /* Espaçamento confortável */
     border-bottom: 1px solid #e0e0e0;
     color: #264d26; /* Verde escuro */
+    text-align: left;  /* Alinha texto à esquerda */
+    
 }
 
 /* Linhas alternadas */
@@ -148,7 +150,20 @@ table tbody tr:hover {
     transition: background-color 0.3s ease;
 }
 
-table a:hover{
+/* Para colocar a data embaixo do "Cadastrado em" */
+.cadastrado-em {
+    display: flex;
+    flex-direction: column;
+}
+
+.cadastrado-em .data {
+    font-size: 0.85rem;
+    color: #4a7d4a;
+    margin-top: 4px;
+}
+
+/* Tira o underline dos links da tabela */
+table a:hover {
     text-decoration: none !important;
 }
 

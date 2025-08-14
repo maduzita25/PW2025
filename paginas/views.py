@@ -47,7 +47,7 @@ class SugestaoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 class ComentarioCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Comentario
-    fields = ['texto', 'usuario', 'sugestao']
+    fields = ['texto','sugestao']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-comentario')
     extra_context = {'titulo': 'Cadastro de Comentário', 'botao': 'Cadastrar'}
