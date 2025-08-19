@@ -13,24 +13,20 @@
     <ul class="menu">
         <li><a href="{% url 'index' %}">Início</a></li>
         <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
+        <li><a href="{% url 'listar-votacao' %}">Votação</a></li>  {# Corrija para o nome da sua URL #}
         
-        {% if  request.user.is_authenticated %}  
-        <li><a href="{% url 'listar-campus' %}">campus</a></li>
-        <li><a href="{% url 'listar-categoria' %}">categoria</a></li>
-        <li><a href="{% url 'listar-sugestao' %}">sugestao</a></li>
-        <li><a href="{% url 'listar-comentario' %}">comentario</a></li>
-        <li><a href="{% url 'listar-curso' %}">curso</a></li>
-        <li><a href="{% url 'listar-tiposolicitacao' %}">tiposolicitacao</a></li>
-        <li><a href="{% url 'listar-perfil' %}">perfil</a></li>
-        
-        <li><a href="{% url "logout"%}">Sair</a> </li>
-
+        {% if request.user.is_authenticated %}
+            <li><a href="{% url 'listar-campus' %}">Campus</a></li>
+            <li><a href="{% url 'listar-categoria' %}">Categoria</a></li>
+            <li><a href="{% url 'listar-sugestao' %}">Sugestão</a></li>
+            <li><a href="{% url 'listar-comentario' %}">Comentário</a></li>
+            <li><a href="{% url 'listar-curso' %}">Curso</a></li>
+            <li><a href="{% url 'listar-tiposolicitacao' %}">Tipo Solicitação</a></li>
+            <li><a href="{% url 'listar-perfil' %}">Perfil</a></li>
+            <li><a href="{% url 'logout' %}">Sair</a></li>
         {% else %}
-
-        <li><a href="{% url "login"%}">Entrar</a> </li>
-        {%endif %}
-        
-        
+            <li><a href="{% url 'login' %}">Entrar</a></li>
+        {% endif %}
     </ul>
 
     <div id="conteudo">
@@ -50,7 +46,7 @@
             <li>{{ message }}</li>
         {% endfor %}
     </ul>
-{% endif %}
+    {% endif %}
 
 </body>
 </html>

@@ -136,7 +136,6 @@ table tbody td {
     border-bottom: 1px solid #e0e0e0;
     color: #264d26; /* Verde escuro */
     text-align: left;  /* Alinha texto à esquerda */
-    
 }
 
 /* Linhas alternadas */
@@ -150,16 +149,19 @@ table tbody tr:hover {
     transition: background-color 0.3s ease;
 }
 
-/* Para colocar a data embaixo do "Cadastrado em" */
+/* Para colocar a data e hora uma embaixo da outra */
 .cadastrado-em {
     display: flex;
     flex-direction: column;
+    gap: 2px; /* Espaço entre data e hora */
+    white-space: nowrap; /* evita quebra dentro de cada item */
+    
 }
 
-.cadastrado-em .data {
+.cadastrado-em .data,
+.cadastrado-em .hora {
     font-size: 0.85rem;
     color: #4a7d4a;
-    margin-top: 4px;
 }
 
 /* Tira o underline dos links da tabela */
@@ -210,7 +212,7 @@ table a:hover {
 }
 
 #form-django input[type="text"]:focus,
-#form-django input[type="password"],
+#form-django input[type="password"]:focus,
 #form-django input[type="file"]:focus,
 #form-django textarea:focus,
 #form-django select:focus {

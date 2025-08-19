@@ -10,8 +10,6 @@ from .views import (
 from django.contrib.auth import views as auth_views
 
 
-
-
 urlpatterns = [
 
     # PÁGINAS ESTÁTICAS
@@ -31,11 +29,9 @@ urlpatterns = [
          }
     ),name="senha"),
 
-
-
-    #criar uma rota de logout
+    # rota logout
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
-
+   
 
     path("", IndexView.as_view(), name="index"),
     path("sobre/", SobreView.as_view(), name="sobre"),
@@ -60,7 +56,7 @@ urlpatterns = [
     path("editar/usuario/<int:pk>/", PerfilUpdate.as_view(), name="editar-perfil"),
 
     # ROTAS DE LISTAGEM
-    path("listar/campi/", CampusList.as_view(), name="listar-campus"),
+    path("listar/campus/", CampusList.as_view(), name="listar-campus"),  # corrigido aqui
     path("listar/categoria/", CategoriaList.as_view(), name="listar-categoria"),
     path("listar/sugestao/", SugestaoList.as_view(), name="listar-sugestao"),
     path("listar/comentario/", ComentarioList.as_view(), name="listar-comentario"),
@@ -68,9 +64,7 @@ urlpatterns = [
     path("listar/tiposolicitacao/", TipoSolicitacaoList.as_view(), name="listar-tiposolicitacao"),
     path("listar/perfil/", PerfilList.as_view(), name="listar-perfil"),
 
-
-
-    # ROTA DE EXCLUSÃO
+    # ROTAS DE EXCLUSÃO
     path("excluir/campus/<int:pk>/", CampusDelete.as_view(), name="excluir-campus"),
     path("excluir/categoria/<int:pk>/", CategoriaDelete.as_view(), name="excluir-categoria"),
     path("excluir/sugestao/<int:pk>/", SugestaoDelete.as_view(), name="excluir-sugestao"),
