@@ -13,6 +13,7 @@
                 <tr>
                     <th>Nome</th>
                     <th>Cadastrado em</th>
+                    
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -20,7 +21,7 @@
                 {% for campus in object_list %}
                 <tr>
                     <td>{{ campus.nome }}</td>
-                    <td>
+                    
                         <td>{{ campus.cadastrado_em|date:"d/m/Y H:i" }}</td>
                         <td>
                             <a class="btn btn-warning btn-sm" href="{% url 'editar-campus' campus.pk %}">✏️</a>

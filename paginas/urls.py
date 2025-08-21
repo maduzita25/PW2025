@@ -6,38 +6,37 @@ from .views import (
     CampusUpdate, CategoriaUpdate, SugestaoUpdate, ComentarioUpdate, CursoUpdate, TipoSolicitacaoUpdate, PerfilUpdate,
     CampusList, CategoriaList, SugestaoList, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
     CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
+    CadastroUsuarioView, VotacaoList  # <-- Adicione VotacaoList aqui
 )
 from django.contrib.auth import views as auth_views
 
-
 urlpatterns = [
 
-    # PÁGINAS ESTÁTICAS
-    path("login/", auth_views.LoginView.as_view( 
-         template_name = 'paginas/form.html',
-         extra_context = {
-             'titulo': 'Autenticação',
-             'botao' : 'Entrar',
-         }
-    ),name="login"),
+    # Registro
+    path("registrar/", CadastroUsuarioView.as_view(), name="registrar"),
 
-    path("senha/", auth_views.PasswordChangeView.as_view( 
-         template_name = 'paginas/form.html',
-         extra_context = {
-             'titulo': 'Atualizar senha',
-             'botao' : 'Salvar',
-         }
-    ),name="senha"),
+    # Login, logout e mudança de senha
+    path("login/", auth_views.LoginView.as_view(
+         template_name='paginas/form.html',
+         extra_context={'titulo': 'Autenticação', 'botao': 'Entrar'}
+    ), name="login"),
 
-    # rota logout
+    path("senha/", auth_views.PasswordChangeView.as_view(
+         template_name='paginas/form.html',
+         extra_context={'titulo': 'Atualizar senha', 'botao': 'Salvar'}
+    ), name="senha"),
+
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
-   
 
+    # Páginas estáticas
     path("", IndexView.as_view(), name="index"),
     path("sobre/", SobreView.as_view(), name="sobre"),
     path("sugestoes/", SugestoesView.as_view(), name="sugestoes"),
 
-    # ROTAS DE CRIAÇÃO
+    # ROTA QUE FALTAVA – Votação:
+    path("listar/votacao/", VotacaoList.as_view(), name="listar-votacao"),
+
+    # Criar registros
     path("adicionar/campus/", CampusCreate.as_view(), name="inserir-campus"),
     path("adicionar/categoria/", CategoriaCreate.as_view(), name="inserir-categoria"),
     path("adicionar/sugestao/", SugestaoCreate.as_view(), name="inserir-sugestao"),
@@ -46,7 +45,7 @@ urlpatterns = [
     path("adicionar/tiposolicitacao/", TipoSolicitacaoCreate.as_view(), name="inserir-tiposolicitacao"),
     path("adicionar/usuario/", PerfilCreate.as_view(), name="inserir-perfil"),
 
-    # ROTAS DE EDIÇÃO
+    # Editar registros
     path("editar/campus/<int:pk>/", CampusUpdate.as_view(), name="editar-campus"),
     path("editar/categoria/<int:pk>/", CategoriaUpdate.as_view(), name="editar-categoria"),
     path("editar/sugestao/<int:pk>/", SugestaoUpdate.as_view(), name="editar-sugestao"),
@@ -55,8 +54,8 @@ urlpatterns = [
     path("editar/tiposolicitacao/<int:pk>/", TipoSolicitacaoUpdate.as_view(), name="editar-tiposolicitacao"),
     path("editar/usuario/<int:pk>/", PerfilUpdate.as_view(), name="editar-perfil"),
 
-    # ROTAS DE LISTAGEM
-    path("listar/campus/", CampusList.as_view(), name="listar-campus"),  # corrigido aqui
+    # Listar registros
+    path("listar/campus/", CampusList.as_view(), name="listar-campus"),
     path("listar/categoria/", CategoriaList.as_view(), name="listar-categoria"),
     path("listar/sugestao/", SugestaoList.as_view(), name="listar-sugestao"),
     path("listar/comentario/", ComentarioList.as_view(), name="listar-comentario"),
@@ -64,7 +63,7 @@ urlpatterns = [
     path("listar/tiposolicitacao/", TipoSolicitacaoList.as_view(), name="listar-tiposolicitacao"),
     path("listar/perfil/", PerfilList.as_view(), name="listar-perfil"),
 
-    # ROTAS DE EXCLUSÃO
+    # Excluir registros
     path("excluir/campus/<int:pk>/", CampusDelete.as_view(), name="excluir-campus"),
     path("excluir/categoria/<int:pk>/", CategoriaDelete.as_view(), name="excluir-categoria"),
     path("excluir/sugestao/<int:pk>/", SugestaoDelete.as_view(), name="excluir-sugestao"),

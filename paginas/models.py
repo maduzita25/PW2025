@@ -23,13 +23,18 @@ class Campus(models.Model):
         return self.nome
 
     class Meta:
-        ordering = ['nome']  # Ordena por nome para facilitar busca/lista
+        ordering = ['nome']
+
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nome
+
+    class Meta:
+        ordering = ['nome']
+
 
 class Perfil(models.Model):
     nome = models.CharField(max_length=100)
@@ -40,11 +45,12 @@ class Perfil(models.Model):
     def __str__(self):
         return self.nome
 
+
 class Sugestao(models.Model):
     titulo = models.CharField(max_length=200)
     descricao = models.TextField()
     campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
-    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     data_criacao = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='aberta')
     prioridade = models.CharField(max_length=10, choices=PRIORIDADE_CHOICES, blank=True, null=True)
@@ -60,16 +66,21 @@ class Sugestao(models.Model):
     def __str__(self):
         return self.titulo
 
+    class Meta:
+        ordering = ['-data_criacao']
+
+
 class Voto(models.Model):
     sugestao = models.ForeignKey(Sugestao, on_delete=models.CASCADE, related_name='votos')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     escolha = models.BooleanField()  # True = Sim, False = Não
 
     class Meta:
-        unique_together = ('sugestao', 'usuario')  # evitar votos duplicados
+        unique_together = ('sugestao', 'usuario')
 
     def __str__(self):
         return f"{self.usuario.username} votou {'Sim' if self.escolha else 'Não'} em {self.sugestao.titulo}"
+
 
 class Comentario(models.Model):
     texto = models.TextField()
@@ -80,6 +91,10 @@ class Comentario(models.Model):
     def __str__(self):
         return f"Comentário por {self.usuario.username} em {self.sugestao.titulo}"
 
+    class Meta:
+        ordering = ['-data_comentario']
+
+
 class Curso(models.Model):
     nome = models.CharField(max_length=150)
     campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
@@ -87,9 +102,16 @@ class Curso(models.Model):
     def __str__(self):
         return self.nome
 
+    class Meta:
+        ordering = ['nome']
+
+
 class TipoSolicitacao(models.Model):
     descricao = models.CharField(max_length=250)
     concluido = models.BooleanField(default=False)
 
     def __str__(self):
         return self.descricao
+
+    class Meta:
+        ordering = ['descricao']

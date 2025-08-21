@@ -1,0 +1,37 @@
+{% extends 'paginas/index.html' %}
+
+{% block conteudo %}
+  <h1>Lista de Votos do Usuário</h1>
+
+  <ul>
+    {% for voto in votos_usuario %}
+      <li>
+        Você votou 
+        {% if voto.escolha %}Sim{% else %}Não{% endif %} 
+        na sugestão: {{ voto.sugestao.titulo }}
+      </li>
+    {% empty %}
+      <li>Você ainda não votou em nenhuma sugestão.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Votar em uma sugestão</h2>
+  
+  <form method="POST" action="{% url 'listar-votacao' %}">
+    {% csrf_token %}
+    
+    <label for="sugestao">Sugestão:</label>
+    <select name="sugestao_id" id="sugestao" required>
+      {% for sugestao in sugestoes %}
+        <option value="{{ sugestao.id }}">{{ sugestao.titulo }}</option>
+      {% endfor %}
+    </select>
+    
+    <p>Você concorda?</p>
+    <label><input type="radio" name="escolha" value="True" required> Sim</label>
+    <label><input type="radio" name="escolha" value="False"> Não</label>
+    
+    <br><br>
+    <input type="submit" value="Enviar voto">
+  </form>
+{% endblock %}

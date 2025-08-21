@@ -1,36 +1,36 @@
 {% extends "paginas/index.html" %}
-
-
-
 {% load static %}
-
 
 {% block conteudo %}
 <h3> Lista de Perfil</h3>
 
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nome</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for perfil in object_list %}
-                <tr>
-                    <td>{{ perfil.nome }}</td>
-                    <td>{{ perfil.nome }}</td>
-                    <td>
-                        <a class="btn btn-warning btn-sm" href="{% url 'editar-perfil' perfil.pk %}">✏️</a>
-                        <a class="btn btn-danger btn-sm" href="{% url 'excluir-perfil' perfil.pk %}">🗑️</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="2" class="text-center">Nenhum perfil cadastrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Campus</th>
+            <th>Ações</th> <!-- Coluna extra para os botões -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for perfil in object_list %}
+        <tr>
+            <td>{{ perfil.nome }}</td>
+            <td>{{ perfil.telefone }}</td>
+            <td>{{ perfil.campus|default:"-" }}</td>
+            <td>
+                <a class="btn btn-warning btn-sm" href="{% url 'editar-perfil' perfil.pk %}">✏️</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'excluir-perfil' perfil.pk %}">🗑️</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">Nenhum perfil cadastrado.</td> <!-- Atualize colspan para 4 -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        <a class="btn btn-primary" href="{% url 'inserir-perfil' %}">Adicionar Novo perfil</a>
-   {% endblock %}
+<a class="btn btn-primary" href="{% url 'inserir-perfil' %}">Adicionar Novo perfil</a>
+{% endblock %}
