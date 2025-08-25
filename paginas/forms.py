@@ -2,10 +2,17 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from django import forms
+from .models import Voto
 
-class VotoForm(forms.Form):
-    escolha = forms.BooleanField(label='Você concorda?', required=True)
-    sugestao_id = forms.IntegerField(widget=forms.HiddenInput())
+
+class VotoForm(forms.ModelForm):
+    # criar o campo escolha com as opçoes sim ou não
+    escolha = forms.ChoiceField(choices=[(True, 'Sim'), (False, 'Não')], widget=forms.RadioSelect)
+
+    class Meta:
+        model = Voto
+        fields = ['sugestao', 'escolha']
+        
 
 # Crie uma classe de formulário para o cadastro de usuários
 # A herança é feita para poder tornar o email único e obrigatório

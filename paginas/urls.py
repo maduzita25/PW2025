@@ -6,7 +6,8 @@ from .views import (
     CampusUpdate, CategoriaUpdate, SugestaoUpdate, ComentarioUpdate, CursoUpdate, TipoSolicitacaoUpdate, PerfilUpdate,
     CampusList, CategoriaList, SugestaoList, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
     CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
-    CadastroUsuarioView, VotacaoList  # <-- Adicione VotacaoList aqui
+    VotoCreate, VotoUpdate, VotoList, VotoDelete  ,
+    CadastroUsuarioView, MeuPerfilUpdate
 )
 from django.contrib.auth import views as auth_views
 
@@ -33,8 +34,7 @@ urlpatterns = [
     path("sobre/", SobreView.as_view(), name="sobre"),
     path("sugestoes/", SugestoesView.as_view(), name="sugestoes"),
 
-    # ROTA QUE FALTAVA – Votação:
-    path("listar/votacao/", VotacaoList.as_view(), name="listar-votacao"),
+
 
     # Criar registros
     path("adicionar/campus/", CampusCreate.as_view(), name="inserir-campus"),
@@ -44,6 +44,7 @@ urlpatterns = [
     path("adicionar/curso/", CursoCreate.as_view(), name="inserir-curso"),
     path("adicionar/tiposolicitacao/", TipoSolicitacaoCreate.as_view(), name="inserir-tiposolicitacao"),
     path("adicionar/usuario/", PerfilCreate.as_view(), name="inserir-perfil"),
+    path("adicionar/voto/", VotoCreate.as_view(), name="inserir-voto"),
 
     # Editar registros
     path("editar/campus/<int:pk>/", CampusUpdate.as_view(), name="editar-campus"),
@@ -53,6 +54,8 @@ urlpatterns = [
     path("editar/curso/<int:pk>/", CursoUpdate.as_view(), name="editar-curso"),
     path("editar/tiposolicitacao/<int:pk>/", TipoSolicitacaoUpdate.as_view(), name="editar-tiposolicitacao"),
     path("editar/usuario/<int:pk>/", PerfilUpdate.as_view(), name="editar-perfil"),
+    path("editar/voto/<int:pk>/", VotoUpdate.as_view(), name="editar-voto"),
+    path("editar/meu-perfil/", MeuPerfilUpdate.as_view(), name="editar-meu-perfil"),
 
     # Listar registros
     path("listar/campus/", CampusList.as_view(), name="listar-campus"),
@@ -62,6 +65,7 @@ urlpatterns = [
     path("listar/curso/", CursoList.as_view(), name="listar-curso"),
     path("listar/tiposolicitacao/", TipoSolicitacaoList.as_view(), name="listar-tiposolicitacao"),
     path("listar/perfil/", PerfilList.as_view(), name="listar-perfil"),
+    path("listar/voto/", VotoList.as_view(), name="listar-voto"),
 
     # Excluir registros
     path("excluir/campus/<int:pk>/", CampusDelete.as_view(), name="excluir-campus"),
@@ -71,4 +75,5 @@ urlpatterns = [
     path("excluir/curso/<int:pk>/", CursoDelete.as_view(), name="excluir-curso"),
     path("excluir/tiposolicitacao/<int:pk>/", TipoSolicitacaoDelete.as_view(), name="excluir-tiposolicitacao"),
     path("excluir/perfil/<int:pk>/", PerfilDelete.as_view(), name="excluir-perfil"),
+    path("excluir/voto/<int:pk>/", VotoDelete.as_view(), name="excluir-voto"),
 ]

@@ -1,0 +1,54 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Início - Sistema de Sugestões IFPR Paranavaí</title>
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}" />
+</head>
+<body>
+
+    <ul class="menu">
+        <li><a href="{% url 'index' %}">Início</a></li>
+        <li><a href="{% url 'sobre' %}">Sobre Nós</a></li>
+        
+        {% if request.user.is_authenticated %}
+            
+            <li><a href="{% url 'listar-campus' %}">Campus</a></li>
+            <li><a href="{% url 'listar-categoria' %}">Categoria</a></li>
+            <li><a href="{% url 'listar-sugestao' %}">Sugestão</a></li>
+            <li><a href="{% url 'listar-comentario' %}">Comentário</a></li>
+            <li><a href="{% url 'listar-curso' %}">Curso</a></li>
+            <li><a href="{% url 'listar-tiposolicitacao' %}">Tipo Solicitação</a></li>
+            <li><a href="{% url 'listar-voto' %}">Votação</a></li>
+            <li><a href="{% url 'listar-perfil' %}">Perfil</a></li>
+            <li><a href="{% url 'logout' %}">Sair</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Entrar</a></li>
+            <li><a href="{% url 'registrar' %}">Cadastrar</a></li>
+        {% endif %}
+    </ul>
+
+    <div id="conteudo">
+        {% block conteudo %}
+        <h2>Bem-vindo ao Sistema de Sugestões de Melhorias</h2>
+        <p>Participe ativamente do desenvolvimento do campus com suas ideias e sugestões!</p>
+        {% endblock %}
+    </div>
+
+    <footer id="rodape">
+        &copy; 2025 IFPR - Campus Paranavaí
+    </footer>
+
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</body>
+</html>

@@ -37,9 +37,9 @@ class Categoria(models.Model):
 
 
 class Perfil(models.Model):
-    nome = models.CharField(max_length=100)
-    telefone = models.CharField(max_length=15, blank=True)
-    campus = models.ForeignKey(Campus, on_delete=models.PROTECT)
+    nome = models.CharField(max_length=100, null=True)
+    telefone = models.CharField(max_length=15, blank=True, null=True)
+    campus = models.ForeignKey(Campus, on_delete=models.PROTECT, null=True)
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil')
 
     def __str__(self):

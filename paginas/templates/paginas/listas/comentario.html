@@ -7,19 +7,24 @@
 
 {% block conteudo %}
 <h3> Lista de Comentários</h3>
-
+    <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
-                    <th>Nome</th>
+                    <th>Usuário</th>
+                    <th>Comentário</th>
+                    <th>Data</th>
+                    <th>Sugestão</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for comentario in object_list %}
                 <tr>
-                    <td>{{ comentario.nome }}</td>
-                    <td>{{ comentario.nome }}</td>
+                    <td>{{ comentario.usuario }}</td> 
+                    <td>{{ comentario.texto }}</td>
+                    <td>{{ comentario.data_comentario|date:'H:i \ d/m/y' }}</td>
+                    <td>{{ comentario.sugestao }}</td>
                     <td>
                         <a class="btn btn-warning btn-sm" href="{% url 'editar-comentario' comentario.pk %}">✏️</a>
                         <a class="btn btn-danger btn-sm" href="{% url 'excluir-comentario' comentario.pk %}">🗑️</a>
@@ -27,11 +32,11 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="2" class="text-center">Nenhum comentario cadastrado.</td>
+                    <td colspan="5" class="text-center">Nenhum comentario cadastrado.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
+    </div>
         <a class="btn btn-primary" href="{% url 'inserir-comentario' %}">Adicionar Novo comentario</a>
    {% endblock %}
