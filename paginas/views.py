@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.views import View
 from django.contrib.auth.decorators import login_required
 
+
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil, Voto
 from django.contrib.auth.models import User, Group
 from .forms import UsuarioCadastroForm, VotoForm
@@ -149,6 +150,10 @@ class TipoSolicitacaoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView)
     success_url = reverse_lazy('listar-tiposolicitacao')
     extra_context = {'titulo': 'Cadastro de Tipo de Solicitação', 'botao': 'Cadastrar'}
     success_message = "Tipo de Solicitação criado com sucesso!"
+
+    def form_valid(self, form):
+        form.instance.solicitado_por = self.request.user
+        return super().form_valid(form)
 
 
 class PerfilCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -293,6 +298,12 @@ class TipoSolicitacaoList(LoginRequiredMixin, ListView):
     model = TipoSolicitacao
     template_name = 'paginas/listas/tiposolicitacao.html'
 
+#fazer uma herança para ter tudo que tem na solicitaçãolist
+class MinhasSolicitacoes(TipoSolicitacaoList):
+
+    def get_queryset(self):
+        qs = TipoSolicitacao.objects.filter(solicitado_por=self.request.user)
+        return qs
 
 class PerfilList(LoginRequiredMixin, ListView):
     model = Perfil
@@ -364,7 +375,7 @@ class PerfilDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 class VotoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Voto
     template_name = 'paginas/form.html'
-    success_url = reverse_lazy('votacao')
+    success_url = reverse_lazy('listar-voto')
     extra_context = {'titulo': 'Excluir Voto', 'botao': 'Excluir'}
     success_message = "Voto excluído com sucesso!"
 

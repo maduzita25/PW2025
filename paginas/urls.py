@@ -1,5 +1,6 @@
 
 from django.urls import path
+from .views import MinhasSolicitacoes
 from .views import (
     IndexView, SobreView, SugestoesView,
     CampusCreate, CategoriaCreate, SugestaoCreate, ComentarioCreate, CursoCreate, TipoSolicitacaoCreate, PerfilCreate,
@@ -8,6 +9,7 @@ from .views import (
     CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
     VotoCreate, VotoUpdate, VotoList, VotoDelete  ,
     CadastroUsuarioView, MeuPerfilUpdate
+
 )
 from django.contrib.auth import views as auth_views
 
@@ -66,6 +68,7 @@ urlpatterns = [
     path("listar/tiposolicitacao/", TipoSolicitacaoList.as_view(), name="listar-tiposolicitacao"),
     path("listar/perfil/", PerfilList.as_view(), name="listar-perfil"),
     path("listar/voto/", VotoList.as_view(), name="listar-voto"),
+    path("listar/minhas-solicitacoes/", MinhasSolicitacoes.as_view(), name="listar-minhas-solicitacoes"),
 
     # Excluir registros
     path("excluir/campus/<int:pk>/", CampusDelete.as_view(), name="excluir-campus"),
