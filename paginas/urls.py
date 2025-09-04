@@ -1,4 +1,3 @@
-
 from django.urls import path
 from .views import MinhasSolicitacoes
 from .views import (
@@ -7,9 +6,8 @@ from .views import (
     CampusUpdate, CategoriaUpdate, SugestaoUpdate, ComentarioUpdate, CursoUpdate, TipoSolicitacaoUpdate, PerfilUpdate,
     CampusList, CategoriaList, SugestaoList, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
     CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
-    VotoCreate, VotoUpdate, VotoList, VotoDelete  ,
+    VotoCreate, VotoUpdate, VotoList, VotoDelete,
     CadastroUsuarioView, MeuPerfilUpdate
-
 )
 from django.contrib.auth import views as auth_views
 
@@ -29,14 +27,17 @@ urlpatterns = [
          extra_context={'titulo': 'Atualizar senha', 'botao': 'Salvar'}
     ), name="senha"),
 
+    path("senha/sucesso/", auth_views.PasswordChangeDoneView.as_view(
+         template_name='paginas/sucesso.html',
+         extra_context={'titulo': 'Senha alterada com sucesso'}
+    ), name="password_change_done"),
+
     path("sair/", auth_views.LogoutView.as_view(), name="logout"),
 
     # Páginas estáticas
     path("", IndexView.as_view(), name="index"),
     path("sobre/", SobreView.as_view(), name="sobre"),
     path("sugestoes/", SugestoesView.as_view(), name="sugestoes"),
-
-
 
     # Criar registros
     path("adicionar/campus/", CampusCreate.as_view(), name="inserir-campus"),

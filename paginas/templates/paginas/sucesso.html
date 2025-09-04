@@ -1,0 +1,8 @@
+{% extends "paginas/index.html" %}
+
+
+{% block content %}
+  <h2>{{ titulo }}</h2>
+  <p>Sua senha foi alterada com sucesso ✅</p>
+  <a href="{% url 'index' %}">Voltar para o início</a>
+{% endblock %}

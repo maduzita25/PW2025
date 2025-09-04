@@ -203,20 +203,26 @@ class CategoriaUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 
 class SugestaoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Sugestao
-    fields = ['titulo', 'descricao', 'usuario', 'campus', 'categoria', 'prioridade', 'anexos']
+    fields = ['titulo', 'descricao', 'campus', 'categoria', 'prioridade', 'anexos']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-sugestao')
     extra_context = {'titulo': 'Atualização de Sugestão', 'botao': 'Salvar'}
     success_message = "Sugestão atualizada com sucesso!"
 
+    def get_object(self, queryset=None):
+        return get_object_or_404(Sugestao, pk=self.kwargs['pk'], usuario=self.request.user) 
+
 
 class ComentarioUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Comentario
-    fields = ['texto', 'usuario', 'sugestao']
+    fields = ['texto', 'sugestao']
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-comentario')
     extra_context = {'titulo': 'Atualização de Comentário', 'botao': 'Salvar'}
     success_message = "Comentário atualizado com sucesso!"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Comentario, pk=self.kwargs['pk'], usuario=self.request.user)
 
 
 class CursoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -339,6 +345,9 @@ class SugestaoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     extra_context = {'titulo': 'Excluir Sugestão', 'botao': 'Excluir'}
     success_message = "Sugestão excluída com sucesso!"
 
+    def get_object(self, queryset=None):
+        return get_object_or_404(Sugestao, pk=self.kwargs['pk'], usuario=self.request.user)
+
 
 class ComentarioDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Comentario
@@ -346,6 +355,9 @@ class ComentarioDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy('listar-comentario')
     extra_context = {'titulo': 'Excluir Comentário', 'botao': 'Excluir'}
     success_message = "Comentário excluído com sucesso!"
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Comentario, pk=self.kwargs['pk'], usuario=self.request.user)
 
 
 class CursoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
