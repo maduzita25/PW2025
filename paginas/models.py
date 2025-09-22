@@ -73,7 +73,7 @@ class Sugestao(models.Model):
 class Voto(models.Model):
     sugestao = models.ForeignKey(Sugestao, on_delete=models.CASCADE, related_name='votos')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    escolha = models.BooleanField()  # True = Sim, False = Não
+    escolha = models.BooleanField(verbose_name="concordo com a sugestão")  # True = Sim, False = Não
 
     class Meta:
         unique_together = ('sugestao', 'usuario')

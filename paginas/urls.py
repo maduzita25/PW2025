@@ -48,6 +48,7 @@ urlpatterns = [
     path("adicionar/tiposolicitacao/", TipoSolicitacaoCreate.as_view(), name="inserir-tiposolicitacao"),
     path("adicionar/usuario/", PerfilCreate.as_view(), name="inserir-perfil"),
     path("adicionar/voto/", VotoCreate.as_view(), name="inserir-voto"),
+    path("adicionar/voto/sugestao/<int:sugestao_id>/", VotoCreate.as_view(), name="inserir-voto-sugestao"),
 
     # Editar registros
     path("editar/campus/<int:pk>/", CampusUpdate.as_view(), name="editar-campus"),

@@ -7,7 +7,7 @@ from .models import Voto
 
 class VotoForm(forms.ModelForm):
     # criar o campo escolha com as opçoes sim ou não
-    escolha = forms.ChoiceField(choices=[(True, 'Sim'), (False, 'Não')], widget=forms.RadioSelect)
+    escolha = forms.ChoiceField(choices=[(True, 'Sim'), (False, 'Não')], widget=forms.RadioSelect, label="Você concorda com a sugestão?")
 
     class Meta:
         model = Voto

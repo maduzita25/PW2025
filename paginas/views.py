@@ -3,11 +3,8 @@ from django.views.generic import TemplateView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from django.views import View
-from django.contrib.auth.decorators import login_required
-
+from braces.views import    GroupRequiredMixin
+from django.shortcuts import get_object_or_404
 
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil, Voto
 from django.contrib.auth.models import User, Group
@@ -90,7 +87,8 @@ class SugestoesView(TemplateView):
 
 
 # CREATE VIEWS
-class CampusCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class CampusCreate(GroupRequiredMixin, SuccessMessageMixin, CreateView):
+    group_required = ["Administrador"]
     model = Campus
     fields = ['nome']
     template_name = 'paginas/form.html'
@@ -99,7 +97,8 @@ class CampusCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = "Campus criado com sucesso!"
 
 
-class CategoriaCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class CategoriaCreate(GroupRequiredMixin, SuccessMessageMixin, CreateView):
+    group_required = ["Administrador"]
     model = Categoria
     fields = ['nome']
     template_name = 'paginas/form.html'
@@ -134,7 +133,8 @@ class ComentarioCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 
-class CursoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class CursoCreate(GroupRequiredMixin, SuccessMessageMixin, CreateView):
+    group_required = ["Administrador"]
     model = Curso
     fields = ['nome', 'campus']
     template_name = 'paginas/form.html'
@@ -143,7 +143,8 @@ class CursoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     success_message = "Curso criado com sucesso!"
 
 
-class TipoSolicitacaoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class TipoSolicitacaoCreate(GroupRequiredMixin, SuccessMessageMixin, CreateView):
+    group_required = ["Administrador"]
     model = TipoSolicitacao
     fields = ['descricao', 'concluido']
     template_name = 'paginas/form.html'
@@ -177,13 +178,28 @@ class VotoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     extra_context = {'titulo': 'Votar em Sugestão', 'botao': 'Votar'}
     success_message = "Voto registrado com sucesso!"
 
+    # Se receber o pk da sugestão na URL, pré-seleciona no formulário
+    def get_initial(self):
+        initial = super().get_initial()
+        sugestao_id = self.kwargs.get('sugestao_id')
+        if sugestao_id:
+            initial['sugestao'] = get_object_or_404(Sugestao, pk=sugestao_id)
+        return initial
+
     def form_valid(self, form):
+
+        # se o usuario ja votou nesta sugestao apresente uma mensagem de erro
+        if Voto.objects.filter(usuario=self.request.user, sugestao=form.instance.sugestao).exists():
+            form.add_error(None, "Você já votou nesta sugestão.")
+            return self.form_invalid(form)
+
         form.instance.usuario = self.request.user
         return super().form_valid(form)
 
 
 # UPDATE VIEWS
-class CampusUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CampusUpdate(GroupRequiredMixin, SuccessMessageMixin, UpdateView):
+    group_required = ["Administrador"]
     model = Campus
     fields = ['nome']
     template_name = 'paginas/form.html'
@@ -192,7 +208,8 @@ class CampusUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = "Campus atualizado com sucesso!"
 
 
-class CategoriaUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CategoriaUpdate(GroupRequiredMixin, SuccessMessageMixin, UpdateView):
+    group_required = ["Administrador"]
     model = Categoria
     fields = ['nome']
     template_name = 'paginas/form.html'
@@ -225,7 +242,8 @@ class ComentarioUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return get_object_or_404(Comentario, pk=self.kwargs['pk'], usuario=self.request.user)
 
 
-class CursoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class CursoUpdate(GroupRequiredMixin, SuccessMessageMixin, UpdateView):
+    group_required = ["Administrador"]
     model = Curso
     fields = ['nome', 'campus']
     template_name = 'paginas/form.html'
@@ -234,7 +252,8 @@ class CursoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = "Curso atualizado com sucesso!"
 
 
-class TipoSolicitacaoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class TipoSolicitacaoUpdate(GroupRequiredMixin, SuccessMessageMixin, UpdateView):
+    group_required = ["Administrador"]
     model = TipoSolicitacao
     fields = ['descricao', 'concluido']
     template_name = 'paginas/form.html'
@@ -243,7 +262,8 @@ class TipoSolicitacaoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     success_message = "Tipo de Solicitação atualizado com sucesso!"
 
 
-class PerfilUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class PerfilUpdate(GroupRequiredMixin, SuccessMessageMixin, UpdateView):
+    group_required = ["Administrador"]
     model = Perfil
     fields = ['nome', 'telefone', 'campus']
     template_name = 'paginas/form.html'
@@ -322,7 +342,8 @@ class VotoList(LoginRequiredMixin, ListView):
 
 
 # DELETE VIEWS
-class CampusDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CampusDelete(GroupRequiredMixin, SuccessMessageMixin, DeleteView):
+    group_required = ["Administrador"]
     model = Campus
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-campus')
@@ -330,7 +351,8 @@ class CampusDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_message = "Campus excluído com sucesso!"
 
 
-class CategoriaDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CategoriaDelete(GroupRequiredMixin, SuccessMessageMixin, DeleteView):
+    group_required = ["Administrador"]
     model = Categoria
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-categoria')
@@ -360,7 +382,8 @@ class ComentarioDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
         return get_object_or_404(Comentario, pk=self.kwargs['pk'], usuario=self.request.user)
 
 
-class CursoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class CursoDelete(GroupRequiredMixin, SuccessMessageMixin, DeleteView):
+    group_required = ["Administrador"]
     model = Curso
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-curso')
@@ -368,7 +391,8 @@ class CursoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_message = "Curso excluído com sucesso!"
 
 
-class TipoSolicitacaoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+class TipoSolicitacaoDelete(GroupRequiredMixin, SuccessMessageMixin, DeleteView):
+    group_required = ["Administrador"]
     model = TipoSolicitacao
     template_name = 'paginas/form.html'
     success_url = reverse_lazy('listar-tiposolicitacao')
