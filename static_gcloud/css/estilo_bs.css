@@ -1,0 +1,69 @@
+:root {
+    --ifpr-green: #006633;
+    --ifpr-green-dark: #005529; /* tom ligeiramente mais escuro para hover */
+    --ifpr-footer-bg: #005529;
+  }
+  
+  .navbar, .dropdown-menu {
+    background-color: var(--ifpr-green) !important;
+  }
+  .navbar .nav-link,
+  .navbar .dropdown-item,
+  .navbar-brand {
+    color: white !important;
+  }
+  .navbar .nav-link:hover,
+  .navbar .dropdown-item:hover {
+    background-color: var(--ifpr-green-dark) !important;
+  }
+  
+  footer {
+    background-color: var(--ifpr-footer-bg);
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+  }
+  
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  main {
+    flex: 1;
+    padding-top: 4.5rem;
+    padding-bottom: 2rem;
+  }
+  
+  /* Tabela com cabeçalho da cor do IFPR */
+  .table thead tr th {
+    background-color: var(--ifpr-green);
+    color: white;
+  }
+  
+  /* Você pode adicionar outras customizações, como hover e bordas */
+  .table thead tr th:hover {
+    background-color: var(--ifpr-green-dark);
+  }
+
+
+  #form-django {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 100, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+    max-width: 800px;
+    margin: 20px auto;
+  }
+  #form-django label {
+    color: #006633;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  #form-django input:focus,
+  #form-django select:focus,
+  #form-django textarea:focus {
+    border-color: #006633;
+    box-shadow: 0 0 5px rgba(0, 100, 0, 0.2);
+  }

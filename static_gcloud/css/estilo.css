@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #e6f2e6; /* Verde clarinho no fundo */
+    color: #1a3d1a; /* Verde escuro para texto */
+    margin: 0;
+    padding: 0;
+}
+
+/* Menu horizontal */
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 15px;
+    background-color: #006633; /* Verde IFPR forte */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border-radius: 6px;
+}
+
+.menu li {
+    display: inline;
+}
+
+.menu li a {
+    text-decoration: none;
+    color: white; /* branco no menu para contraste */
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: block;
+}
+
+.menu li a:hover {
+    background-color: #004d1a; /* Verde mais escuro no hover */
+    color: white;
+}
+
+/* Conteúdo principal */
+#conteudo {
+    max-width: 1100px;
+    background-color: white;
+    margin: 30px auto 70px; /* Espaço extra para o rodapé fixo */
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,100,0,0.1);
+}
+
+/* Títulos padrão */
+h3 {
+    color: #006633; /* Verde IFPR */
+    margin-top: 0;
+    font-weight: 700;
+}
+
+/* Classe para os títulos principais */
+.titulo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.8rem; /* Tamanho maior para destaque */
+    font-weight: 700;
+    color: #006633;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #006633; /* Linha inferior opcional */
+    padding-bottom: 5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase; /* Deixa em maiúsculas */
+}
+
+/* Parágrafos */
+p {
+    line-height: 1.7;
+    font-size: 1.1rem;
+    color: #264d26; /* Verde escuro para o texto */
+}
+
+/* Rodapé fixo */
+#rodape {
+    background-color: #006633; /* Verde IFPR */
+    color: white;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+/* Link padrão e hover dentro do conteúdo */
+#conteudo a {
+    color: #009933; /* Verde vivo para links */
+    text-decoration: none;
+    font-weight: 600;
+}
+
+#conteudo a:hover {
+    text-decoration: underline;
+}
+
+/* Tabela estilizada */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 0 10px rgba(0, 100, 0, 0.1);
+    background-color: #ffffff; /* Fundo branco */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Cabeçalho da tabela */
+table thead {
+    background-color: #006633; /* Verde IFPR */
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+table thead th {
+    padding: 12px 15px;
+    text-align: left;  /* Alinha texto à esquerda */
+    font-weight: 600;
+}
+
+/* Corpo da tabela */
+table tbody td {
+    padding: 12px 15px; /* Espaçamento confortável */
+    border-bottom: 1px solid #e0e0e0;
+    color: #264d26; /* Verde escuro */
+    text-align: left;  /* Alinha texto à esquerda */
+}
+
+/* Linhas alternadas */
+table tbody tr:nth-child(even) {
+    background-color: #f0f9f0; /* Verde bem claro para contraste */
+}
+
+/* Hover nas linhas */
+table tbody tr:hover {
+    background-color: #e6f2e6; /* Tom suave de verde */
+    transition: background-color 0.3s ease;
+}
+
+/* Para colocar a data e hora uma embaixo da outra */
+.cadastrado-em {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Espaço entre data e hora */
+    white-space: nowrap; /* evita quebra dentro de cada item */
+    
+}
+
+.cadastrado-em .data,
+.cadastrado-em .hora {
+    font-size: 0.85rem;
+    color: #4a7d4a;
+}
+
+/* Tira o underline dos links da tabela */
+table a:hover {
+    text-decoration: none !important;
+}
+
+/* Estilo base do formulário */
+#form-django {
+    background-color: #ffffff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 100, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+/* Agrupamento dos campos */
+#form-django p {
+    margin-bottom: 20px;
+}
+
+/* Rótulos */
+#form-django label {
+    display: block;
+    margin-bottom: 8px;
+    color: #006633;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Campos de entrada e seleção */
+#form-django input[type="text"],
+#form-django input[type="email"],
+#form-django input[type="password"],
+#form-django input[type="file"],
+#form-django textarea,
+#form-django select {
+    width: 95%;
+    padding: 10px 14px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #f7fff7;
+    color: #1a3d1a;
+    transition: border-color 0.3s ease;
+}
+
+#form-django input[type="text"]:focus,
+#form-django input[type="email"]:focus,
+#form-django input[type="password"]:focus,
+#form-django input[type="file"]:focus,
+#form-django textarea:focus,
+#form-django select:focus {
+    border-color: #006633;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 100, 0, 0.2);
+}
+
+/* Textarea */
+#form-django textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Botão de envio */
+#form-django button[type="submit"] {
+    background-color: #006633;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background-color 0.3s ease;
+}
+
+#form-django button[type="submit"]:hover {
+    background-color: #004d1a;
+}

@@ -1,0 +1,6 @@
+https://pw2025.rj.r.appspot.com
+
+gcloud init
+
+gcloud app deploy
+
