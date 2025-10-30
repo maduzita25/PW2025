@@ -5,7 +5,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from braces.views import GroupRequiredMixin
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum, Avg, F
+from django.db.models.functions import TruncDate
 
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil, Voto
 from django.contrib.auth.models import User, Group
@@ -529,22 +530,205 @@ class VotoDelete(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     success_message = "Voto excluído com sucesso!"
 
 
-# VOTOS: removido a view separada, agora o método está dentro da função votacao_list
-
-# Se precisar da view JSON para votos (opcional)
-# from django.http import JsonResponse
-# class SugestaoVotosView(LoginRequiredMixin, View):
-#     def get(self, request, *args, **kwargs):
-#         sugestao_id = self.kwargs.get('sugestao_id')
-#         sugestao = get_object_or_404(Sugestao, id=sugestao_id)
-#         total_votos = sugestao.votos_sim() + sugestao.votos_nao()
-#         porcentagem_sim = (sugestao.votos_sim() / total_votos * 100) if total_votos > 0 else 0
-#         porcentagem_nao = (sugestao.votos_nao() / total_votos * 100) if total_votos > 0 else 0
-#         data = {
-#             'total_votos': total_votos,
-#             'votos_sim': sugestao.votos_sim(),
-#             'votos_nao': sugestao.votos_nao(),
-#             'porcentagem_sim': porcentagem_sim,
-#             'porcentagem_nao': porcentagem_nao,
-#         }
-#         return JsonResponse(data)
+# RELATÓRIO DE VOTAÇÃO
+class RelatorioVotacaoView(LoginRequiredMixin, TemplateView):
+    """
+    View para exibir relatório completo de votações com gráficos.
+    """
+    template_name = 'paginas/relatorio_votacao.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # ==================== DADOS GERAIS ====================
+        total_sugestoes = Sugestao.objects.count()
+        total_votos = Voto.objects.count()
+        total_comentarios = Comentario.objects.count()
+        total_usuarios = User.objects.filter(groups__name='Visitante').count()
+        
+        # Votos por escolha
+        votos_sim = Voto.objects.filter(escolha=True).count()
+        votos_nao = Voto.objects.filter(escolha=False).count()
+        
+        # Calcular porcentagens
+        if total_votos > 0:
+            pct_sim = (votos_sim / total_votos) * 100
+            pct_nao = (votos_nao / total_votos) * 100
+        else:
+            pct_sim = pct_nao = 0.0
+        
+        context['total_sugestoes'] = total_sugestoes
+        context['total_votos'] = total_votos
+        context['total_comentarios'] = total_comentarios
+        context['total_usuarios'] = total_usuarios
+        context['votos_sim'] = votos_sim
+        context['votos_nao'] = votos_nao
+        context['pct_sim'] = round(pct_sim, 2)
+        context['pct_nao'] = round(pct_nao, 2)
+        
+        # ==================== VOTOS POR CAMPUS ====================
+        votos_por_campus = Voto.objects.select_related('sugestao__campus').values(
+            'sugestao__campus__nome'
+        ).annotate(
+            total=Count('id'),
+            concordam=Count('id', filter=Q(escolha=True)),
+            discordam=Count('id', filter=Q(escolha=False))
+        ).order_by('sugestao__campus__nome')
+        
+        campus_labels = [item['sugestao__campus__nome'] for item in votos_por_campus]
+        campus_concordam = [item['concordam'] for item in votos_por_campus]
+        campus_discordam = [item['discordam'] for item in votos_por_campus]
+        
+        context['campus_labels'] = str(campus_labels)
+        context['campus_concordam'] = str(campus_concordam)
+        context['campus_discordam'] = str(campus_discordam)
+        
+        # ==================== VOTOS POR CATEGORIA ====================
+        votos_por_categoria = Voto.objects.select_related('sugestao__categoria').values(
+            'sugestao__categoria__nome'
+        ).annotate(
+            total=Count('id'),
+            concordam=Count('id', filter=Q(escolha=True)),
+            discordam=Count('id', filter=Q(escolha=False))
+        ).order_by('sugestao__categoria__nome')
+        
+        categoria_labels = [item['sugestao__categoria__nome'] for item in votos_por_categoria]
+        categoria_concordam = [item['concordam'] for item in votos_por_categoria]
+        categoria_discordam = [item['discordam'] for item in votos_por_categoria]
+        
+        context['categoria_labels'] = str(categoria_labels)
+        context['categoria_concordam'] = str(categoria_concordam)
+        context['categoria_discordam'] = str(categoria_discordam)
+        
+        # ==================== SUGESTÕES POR STATUS ====================
+        sugestoes_por_status = Sugestao.objects.values('status').annotate(
+            total=Count('id')
+        ).order_by('status')
+        
+        # Se não houver dados, criar array vazio
+        if sugestoes_por_status.exists():
+            status_labels = [item['status'].upper() for item in sugestoes_por_status]
+            status_valores = [item['total'] for item in sugestoes_por_status]
+        else:
+            status_labels = []
+            status_valores = []
+        
+        context['status_labels'] = str(status_labels) if status_labels else "[]"
+        context['status_valores'] = str(status_valores) if status_valores else "[]"
+        
+        # ==================== SUGESTÕES POR PRIORIDADE ====================
+        sugestoes_por_prioridade = Sugestao.objects.values('prioridade').exclude(
+            prioridade__isnull=True
+        ).annotate(
+            total=Count('id')
+        ).order_by('prioridade')
+        
+        prioridade_labels = [item['prioridade'].upper() for item in sugestoes_por_prioridade]
+        prioridade_valores = [item['total'] for item in sugestoes_por_prioridade]
+        
+        context['prioridade_labels'] = str(prioridade_labels)
+        context['prioridade_valores'] = str(prioridade_valores)
+        
+        # ==================== TOP 5 SUGESTÕES MAIS VOTADAS ====================
+        top_sugestoes = Sugestao.objects.annotate(
+            total_votos=Count('votos')
+        ).order_by('-total_votos')[:5]
+        
+        top_sugestoes_data = []
+        for sug in top_sugestoes:
+            votos_agg = sug.votos.aggregate(
+                sim=Count('id', filter=Q(escolha=True)),
+                nao=Count('id', filter=Q(escolha=False))
+            )
+            top_sugestoes_data.append({
+                'titulo': sug.titulo[:30] + '...' if len(sug.titulo) > 30 else sug.titulo,
+                'total': sug.total_votos,
+                'sim': votos_agg['sim'],
+                'nao': votos_agg['nao']
+            })
+        
+        # Se não houver dados, criar arrays vazios
+        if top_sugestoes_data:
+            top_titles = [item['titulo'] for item in top_sugestoes_data]
+            top_votos = [item['total'] for item in top_sugestoes_data]
+        else:
+            top_titles = []
+            top_votos = []
+        
+        context['top_titles'] = str(top_titles) if top_titles else "[]"
+        context['top_votos'] = str(top_votos) if top_votos else "[]"
+        
+        # ==================== TAXA DE PARTICIPAÇÃO POR CAMPUS ====================
+        participacao_campus = Campus.objects.annotate(
+            total_sugestoes=Count('sugestao'),
+            total_votos=Count('sugestao__votos')
+        ).order_by('-total_votos')
+        
+        part_campus_labels = [c.nome for c in participacao_campus]
+        part_campus_sugestoes = [c.total_sugestoes for c in participacao_campus]
+        part_campus_votos = [c.total_votos for c in participacao_campus]
+        
+        context['part_campus_labels'] = str(part_campus_labels)
+        context['part_campus_sugestoes'] = str(part_campus_sugestoes)
+        context['part_campus_votos'] = str(part_campus_votos)
+        
+        # ==================== MÉDIA DE VOTOS POR SUGESTÃO ====================
+        media_votos = Sugestao.objects.annotate(
+            total_votos=Count('votos')
+        ).aggregate(media=Avg('total_votos'))
+        context['media_votos'] = round(media_votos['media'] or 0, 2)
+        
+        # ==================== ENGAJAMENTO: COMENTÁRIOS POR SUGESTÃO ====================
+        media_comentarios = Sugestao.objects.annotate(
+            total_comentarios=Count('comentarios')
+        ).aggregate(media=Avg('total_comentarios'))
+        context['media_comentarios'] = round(media_comentarios['media'] or 0, 2)
+        
+        # ==================== SUGESTÕES POR CAMPUS (Pizza) ====================
+        sugestoes_campus = Campus.objects.annotate(
+            total=Count('sugestao')
+        ).order_by('-total')
+        
+        campus_pizza_labels = [c.nome for c in sugestoes_campus]
+        campus_pizza_valores = [c.total for c in sugestoes_campus]
+        
+        context['campus_pizza_labels'] = str(campus_pizza_labels)
+        context['campus_pizza_valores'] = str(campus_pizza_valores)
+        
+        # ==================== CATEGORIAS MAIS VOTADAS ====================
+        categorias_votadas = Categoria.objects.annotate(
+            total_votos=Count('sugestao__votos')
+        ).order_by('-total_votos')[:5]
+        
+        # Se não houver dados, criar arrays vazios
+        if categorias_votadas.exists():
+            cat_labels = [c.nome for c in categorias_votadas]
+            cat_votos = [c.total_votos for c in categorias_votadas]
+        else:
+            cat_labels = []
+            cat_votos = []
+        
+        context['cat_labels'] = str(cat_labels) if cat_labels else "[]"
+        context['cat_votos'] = str(cat_votos) if cat_votos else "[]"
+        
+        # ==================== ÍNDICE DE CONCORDÂNCIA POR CATEGORIA ====================
+        indice_categoria = Voto.objects.select_related('sugestao__categoria').values(
+            'sugestao__categoria__nome'
+        ).annotate(
+            total=Count('id'),
+            concordam=Count('id', filter=Q(escolha=True))
+        ).order_by('sugestao__categoria__nome')
+        
+        indice_cat_labels = [item['sugestao__categoria__nome'] for item in indice_categoria]
+        indice_cat_valores = []
+        for item in indice_categoria:
+            if item['total'] > 0:
+                indice = (item['concordam'] / item['total']) * 100
+                indice_cat_valores.append(round(indice, 2))
+            else:
+                indice_cat_valores.append(0.0)
+        
+        context['indice_cat_labels'] = str(indice_cat_labels)
+        context['indice_cat_valores'] = str(indice_cat_valores)
+        
+        return context

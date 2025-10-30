@@ -1,0 +1,581 @@
+{% extends "paginas/index.html" %}
+{% load static %}
+
+{% block title %}Relatório de Votação - Sistema de Sugestões{% endblock %}
+
+{% block conteudo %}
+<div class="container-fluid mt-5 pt-3">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="mb-2"><i class="bi bi-graph-up"></i> Relatório de Votação</h1>
+                    <p class="text-muted">Dashboard completo com análise de votações, sugestões e engajamento</p>
+                </div>
+                <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+            </div>
+            <hr>
+        </div>
+    </div>
+
+    <!-- Cartões de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total de Sugestões</p>
+                            <h2 class="mb-0 text-primary">{{ total_sugestoes }}</h2>
+                        </div>
+                        <i class="bi bi-lightbulb fs-1 text-primary opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total de Votos</p>
+                            <h2 class="mb-0 text-success">{{ total_votos }}</h2>
+                        </div>
+                        <i class="bi bi-hand-thumbs-up fs-1 text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Total de Comentários</p>
+                            <h2 class="mb-0 text-info">{{ total_comentarios }}</h2>
+                        </div>
+                        <i class="bi bi-chat-dots fs-1 text-info opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100 border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted small mb-1">Usuários Ativos</p>
+                            <h2 class="mb-0 text-warning">{{ total_usuarios }}</h2>
+                        </div>
+                        <i class="bi bi-people fs-1 text-warning opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cartões de Métricas -->
+    <div class="row mb-4">
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Votos Concordam</p>
+                    <h3 class="mb-1 text-success">{{ votos_sim }}</h3>
+                    <span class="badge bg-success">{{ pct_sim }}%</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Votos Discordam</p>
+                    <h3 class="mb-1 text-danger">{{ votos_nao }}</h3>
+                    <span class="badge bg-danger">{{ pct_nao }}%</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Média de Votos</p>
+                    <h3 class="mb-1">{{ media_votos }}</h3>
+                    <small class="text-muted">por sugestão</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Taxa Concordância</p>
+                    <h3 class="mb-1 text-primary">
+                        {% if total_votos > 0 %}
+                            {{ pct_sim }}%
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">Média Comentários</p>
+                    <h3 class="mb-1">{{ media_comentarios }}</h3>
+                    <small class="text-muted">por sugestão</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos - Primeira Linha -->
+    <div class="row mb-4">
+        <!-- Votos Concordam vs Discordam -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Distribuição Geral de Votos</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartVotosGeral"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sugestões por Status -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Sugestões por Status</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartStatus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos - Segunda Linha -->
+    <div class="row mb-4">
+        <!-- Votos por Campus (Coluna) -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-building"></i> Votos por Campus</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartCampusVotos"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sugestões por Prioridade -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Sugestões por Prioridade</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartPrioridade"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos - Terceira Linha -->
+    <div class="row mb-4">
+        <!-- Top 5 Sugestões Mais Votadas -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-trophy"></i> Top 5 Sugestões Mais Votadas</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartTop5"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sugestões por Campus (Pizza) -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Distribuição de Sugestões por Campus</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartCampusSugestoes"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos - Quarta Linha -->
+    <div class="row mb-4">
+        <!-- Votos por Categoria -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-tag"></i> Votos por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartCategoriaVotos"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categorias Mais Votadas -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-star"></i> Categorias Mais Votadas</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartCategoriasMaisVotadas"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos - Quinta Linha -->
+    <div class="row mb-4">
+        <!-- Participação por Campus (Sugestões vs Votos) -->
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi pie-chart"></i> Taxa de Participação por Campus</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartParticipacaoCampus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos - Sexta Linha -->
+    <div class="row mb-4">
+        <!-- Índice de Concordância por Categoria -->
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-percent"></i> Índice de Concordância por Categoria</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chartIndiceCategoria"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ApexCharts Library -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script>
+
+<script>
+    // Configuração de cores
+    const colors = {
+        primary: '#0d6efd',
+        success: '#198754',
+        danger: '#dc3545',
+        warning: '#ffc107',
+        info: '#0dcaf0',
+        light: '#f8f9fa',
+        dark: '#212529'
+    };
+
+    // DEBUG: Verificar dados
+    console.log('Status Labels:', {{ status_labels|safe }});
+    console.log('Status Valores:', {{ status_valores|safe }});
+    console.log('Top Titles:', {{ top_titles|safe }});
+    console.log('Top Votos:', {{ top_votos|safe }});
+    console.log('Cat Labels:', {{ cat_labels|safe }});
+    console.log('Cat Votos:', {{ cat_votos|safe }});
+
+    // ===== 1. GRÁFICO: Distribuição Geral de Votos (Pizza) =====
+    const chartVotosGeral = new ApexCharts(document.querySelector("#chartVotosGeral"), {
+        series: [{{ votos_sim }}, {{ votos_nao }}],
+        labels: ['Concordam', 'Discordam'],
+        chart: {
+            type: 'pie',
+            height: 300
+        },
+        colors: [colors.success, colors.danger],
+        dataLabels: {
+            formatter: (val) => val.toFixed(2) + '%'
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartVotosGeral.render();
+
+    // ===== 2. GRÁFICO: Sugestões por Status (Scatter) =====
+    const statusLabelsData = {{ status_labels|safe }};
+    const statusValoresData = {{ status_valores|safe }};
+    
+    // Preparar dados para scatter
+    let scatterData = [];
+    if (statusValoresData.length > 0) {
+        statusValoresData.forEach((valor, index) => {
+            scatterData.push({x: statusLabelsData[index] || `Item ${index}`, y: valor});
+        });
+    } else {
+        scatterData = [{x: 'Sem dados', y: 0}];
+    }
+    
+    const chartStatus = new ApexCharts(document.querySelector("#chartStatus"), {
+        series: [{
+            name: 'Quantidade',
+            data: scatterData
+        }],
+        chart: {
+            type: 'scatter',
+            height: 300
+        },
+        xaxis: {
+            type: 'category',
+            title: {
+                text: 'Status'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Quantidade'
+            }
+        },
+        colors: [colors.primary],
+        dataLabels: {
+            enabled: true
+        }
+    });
+    chartStatus.render();
+
+    // ===== 3. GRÁFICO: Votos por Campus (Coluna Empilhada) =====
+    const chartCampusVotos = new ApexCharts(document.querySelector("#chartCampusVotos"), {
+        series: [
+            {
+                name: 'Concordam',
+                data: {{ campus_concordam|safe }}
+            },
+            {
+                name: 'Discordam',
+                data: {{ campus_discordam|safe }}
+            }
+        ],
+        chart: {
+            type: 'bar',
+            height: 300,
+            stacked: true
+        },
+        xaxis: {
+            categories: {{ campus_labels|safe }}
+        },
+        colors: [colors.success, colors.danger],
+        dataLabels: {
+            enabled: true
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartCampusVotos.render();
+
+    // ===== 4. GRÁFICO: Sugestões por Prioridade (Pizza Rosca) =====
+    const chartPrioridade = new ApexCharts(document.querySelector("#chartPrioridade"), {
+        series: {{ prioridade_valores|safe }},
+        labels: {{ prioridade_labels|safe }},
+        chart: {
+            type: 'donut',
+            height: 300
+        },
+        colors: [colors.danger, colors.warning, colors.success],
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartPrioridade.render();
+
+    // ===== 5. GRÁFICO: Top 5 Sugestões Mais Votadas (Scatter) =====
+    const topTitlesData = {{ top_titles|safe }};
+    const topVotosData = {{ top_votos|safe }};
+    
+    let scatterTopData = [];
+    if (topVotosData.length > 0) {
+        topVotosData.forEach((valor, index) => {
+            scatterTopData.push({x: index + 1, y: valor});
+        });
+    } else {
+        scatterTopData = [{x: 1, y: 0}];
+    }
+    
+    const chartTop5 = new ApexCharts(document.querySelector("#chartTop5"), {
+        series: [{
+            name: 'Total de Votos',
+            data: scatterTopData
+        }],
+        chart: {
+            type: 'scatter',
+            height: 300
+        },
+        xaxis: {
+            type: 'numeric',
+            title: {
+                text: 'Ranking'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Votos'
+            }
+        },
+        colors: [colors.primary],
+        dataLabels: {
+            enabled: true,
+            formatter: function(value) {
+                return value.y;
+            }
+        }
+    });
+    chartTop5.render();
+
+    // ===== 6. GRÁFICO: Distribuição de Sugestões por Campus (Pizza) =====
+    const chartCampusSugestoes = new ApexCharts(document.querySelector("#chartCampusSugestoes"), {
+        series: {{ campus_pizza_valores|safe }},
+        labels: {{ campus_pizza_labels|safe }},
+        chart: {
+            type: 'pie',
+            height: 300
+        },
+        dataLabels: {
+            formatter: (val) => val.toFixed(2) + '%'
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartCampusSugestoes.render();
+
+    // ===== 7. GRÁFICO: Votos por Categoria (Coluna Empilhada) =====
+    const chartCategoriaVotos = new ApexCharts(document.querySelector("#chartCategoriaVotos"), {
+        series: [
+            {
+                name: 'Concordam',
+                data: {{ categoria_concordam|safe }}
+            },
+            {
+                name: 'Discordam',
+                data: {{ categoria_discordam|safe }}
+            }
+        ],
+        chart: {
+            type: 'bar',
+            height: 300,
+            stacked: true
+        },
+        xaxis: {
+            categories: {{ categoria_labels|safe }}
+        },
+        colors: [colors.success, colors.danger],
+        dataLabels: {
+            enabled: true
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartCategoriaVotos.render();
+
+    // ===== 8. GRÁFICO: Categorias Mais Votadas (Pizza em vez de Coluna) =====
+    const catLabelsData = {{ cat_labels|safe }};
+    const catVotosData = {{ cat_votos|safe }};
+    
+    const chartCategoriasMaisVotadas = new ApexCharts(document.querySelector("#chartCategoriasMaisVotadas"), {
+        series: catVotosData.length > 0 ? catVotosData : [0],
+        labels: catLabelsData.length > 0 ? catLabelsData : ['Sem dados'],
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: (val) => val.toFixed(2) + '%'
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartCategoriasMaisVotadas.render();
+
+    // ===== 9. GRÁFICO: Taxa de Participação por Campus (Linha Múltipla) =====
+    const chartParticipacaoCampus = new ApexCharts(document.querySelector("#chartParticipacaoCampus"), {
+        series: [
+            {
+                name: 'Sugestões',
+                data: {{ part_campus_sugestoes|safe }}
+            },
+            {
+                name: 'Votos',
+                data: {{ part_campus_votos|safe }}
+            }
+        ],
+        chart: {
+            type: 'line',
+            height: 350,
+            zoom: {
+                enabled: true
+            }
+        },
+        xaxis: {
+            categories: {{ part_campus_labels|safe }}
+        },
+        colors: [colors.primary, colors.success],
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        markers: {
+            size: 5
+        },
+        legend: {
+            position: 'bottom'
+        }
+    });
+    chartParticipacaoCampus.render();
+
+    // ===== 10. GRÁFICO: Índice de Concordância por Categoria (Área) =====
+    const chartIndiceCategoria = new ApexCharts(document.querySelector("#chartIndiceCategoria"), {
+        series: [{
+            name: 'Taxa de Concordância (%)',
+            data: {{ indice_cat_valores|safe }}
+        }],
+        chart: {
+            type: 'area',
+            height: 350
+        },
+        xaxis: {
+            categories: {{ indice_cat_labels|safe }}
+        },
+        colors: [colors.warning],
+        dataLabels: {
+            enabled: true,
+            formatter: (val) => val.toFixed(2) + '%'
+        },
+        yaxis: {
+            min: 0,
+            max: 100,
+            tickAmount: 5
+        },
+        fill: {
+            opacity: 0.4
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        }
+    });
+    chartIndiceCategoria.render();
+</script>
+
+{% endblock %}

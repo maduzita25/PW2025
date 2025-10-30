@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MinhasSolicitacoes
+from .views import MinhasSolicitacoes, RelatorioVotacaoView
 from .views import (
     IndexView, SobreView, SugestoesView,
     CampusCreate, CategoriaCreate, SugestaoCreate, ComentarioCreate, CursoCreate, TipoSolicitacaoCreate, PerfilCreate,
@@ -84,4 +84,7 @@ urlpatterns = [
 
     # Detail de registros    
     path("ver/sugestao/<int:pk>/", SugestaoDetail.as_view(), name="ver-sugestao"),
+    
+    # Relatório
+    path("relatorio/votacao/", RelatorioVotacaoView.as_view(), name="relatorio-votacao"),
 ]
