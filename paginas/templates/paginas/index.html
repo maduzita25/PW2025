@@ -40,23 +40,28 @@
           {% if request.user.is_authenticated %}
             <!-- Links extras quando autenticado -->
 
+            <!-- Se for superuser mostra o menu -->
+            {% if request.user.is_superuser %}
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navDropdown1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Gestão
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navDropdown1">
-                  <li><a class="dropdown-item" href="{% url 'listar-campus' %}">Campus</a></li>
-                  <li><a class="dropdown-item" href="{% url 'listar-categoria' %}">Categoria</a></li>
-                  <li><a class="dropdown-item" href="{% url 'listar-curso' %}">Curso</a></li>
-                  <li><a class="dropdown-item" href="{% url 'listar-perfil' %}">Perfil</a></li>
-                  <li><a class="dropdown-item" href="{% url 'listar-tiposolicitacao' %}">Tipo Solicitação</a></li>
-                </ul>
-              </li>
+              <a class="nav-link dropdown-toggle" href="#" id="navDropdown1" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Administração
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navDropdown1">
+                <li><a class="dropdown-item" href="{% url 'listar-campus' %}">Campus</a></li>
+                <li><a class="dropdown-item" href="{% url 'listar-categoria' %}">Categoria</a></li>
+                <li><a class="dropdown-item" href="{% url 'listar-curso' %}">Curso</a></li>
+                <li><a class="dropdown-item" href="{% url 'listar-perfil' %}">Perfil</a></li>
+                <li><a class="dropdown-item" href="{% url 'listar-tiposolicitacao' %}">Tipo Solicitação</a></li>
+                <!-- divider -->
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'listar-comentario' %}">Comentários</a></li>
+              </ul>
+            </li>
+            {% endif %}
 
-            <li class="nav-item"><a class="nav-link" href="{% url 'listar-sugestao' %}">Sugestão</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'listar-comentario' %}">Comentário</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'listar-sugestao' %}">Sugestões</a></li>
             
-            <li class="nav-item"><a class="nav-link" href="{% url 'listar-voto' %}">Votação</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'listar-voto' %}">Últimos Votos</a></li>
 
             <!-- Mostrar dropdown para usuario autenticado -->
             <li class="nav-item dropdown">

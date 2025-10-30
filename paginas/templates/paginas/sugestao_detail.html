@@ -1,0 +1,314 @@
+{% extends "paginas/index.html" %}
+
+{% load static %}
+
+{% block conteudo %}
+<div class="sugestao-detail-container mt-4 mb-5">
+    
+    <!-- Cabeçalho da Sugestão -->
+    <div class="row mb-4">
+        
+        <div class="col-lg-8">
+
+
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <!-- Título -->
+                    <h1 class="card-title mb-3">{{ sugestao.titulo }}</h1>
+                    
+                    <!-- Informações básicas em linha -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-3">
+                                <strong>📍 Campus:</strong> <br> 
+                                <span class="fs-4">{{ sugestao.campus.nome }}</span>
+                            </p>
+                            <p class="mb-3">
+                                <strong>🏷️ Categoria:</strong> <br>
+                                <span class="fs-4">{{ sugestao.categoria.nome }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-3">
+                                <strong>📅 Data:</strong> <br>
+                                <span class="fs-4">{{ sugestao.data_criacao|date:"d/m/Y H:i" }}</span>
+                            </p>
+                            <p class="mb-3">
+                                <strong>👤 Autor:</strong> <br>
+                                <span class="text-muted fs-4">{{ sugestao.usuario.username }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Status e Prioridade -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-0">
+                                <strong>📊 Status:</strong>
+                                {% if sugestao.status == 'aberta' %}
+                                    <span class="badge bg-success">Aberta</span>
+                                {% elif sugestao.status == 'analise' %}
+                                    <span class="badge bg-warning">Em Análise</span>
+                                {% elif sugestao.status == 'andamento' %}
+                                    <span class="badge bg-info">Em Andamento</span>
+                                {% elif sugestao.status == 'concluida' %}
+                                    <span class="badge bg-primary">Concluída</span>
+                                {% elif sugestao.status == 'rejeitada' %}
+                                    <span class="badge bg-danger">Rejeitada</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-0">
+                                <strong>⭐ Prioridade:</strong>
+                                {% if sugestao.prioridade == 'alta' %}
+                                    <span class="badge bg-danger">Alta</span>
+                                {% elif sugestao.prioridade == 'media' %}
+                                    <span class="badge bg-warning">Média</span>
+                                {% elif sugestao.prioridade == 'baixa' %}
+                                    <span class="badge bg-info">Baixa</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">Não definida</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Descrição -->
+                    <hr>
+                    <div class="my-3">
+                        <h5 class="text-dark mb-2">📝 Descrição</h5>
+                        <p class="text-muted fs-5" style="white-space: pre-wrap;">{{ sugestao.descricao }}</p>
+                    </div>
+
+                    <!-- Anexos -->
+                    {% if sugestao.anexos %}
+                    <div class="mt-3 pt-3 border-top">
+                        <h6 class="mb-2">📎 Anexos</h6>
+                        <a href="{{ sugestao.anexos.url }}" class="btn btn-sm btn-outline-secondary" download>
+                            <i class="bi bi-download"></i> Baixar Anexo
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow border-0 mt-5">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">⚙️ Ações</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'listar-sugestao' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar à Lista
+                        </a>
+                        {% if eh_autor %}
+                            <a href="{% url 'editar-sugestao' sugestao.pk %}" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <a href="{% url 'excluir-sugestao' sugestao.pk %}" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Excluir
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- fim da coluna -->
+
+        <!-- Painel lateral com Votos -->
+        <div class="col-lg-4">
+            <div class="card shadow border-0 mb-3 sticky-top" style="top: 100px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-3">🗳️ Votação</h5>
+                    
+                    <!-- Gráfico de votos -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong class="text-success">👍 Concordo</strong>
+                            <span class="badge bg-success">{{ votos_sim }}</span>
+                        </div>
+                        <div class="progress mb-2" role="progressbar" aria-valuenow="{{ porcentagem_sim }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar bg-success" style="width: {{ porcentagem_sim|floatformat:1 }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ porcentagem_sim|floatformat:1 }}%</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <strong class="text-danger">👎 Discordo</strong>
+                            <span class="badge bg-danger">{{ votos_nao }}</span>
+                        </div>
+                        <div class="progress mb-2" role="progressbar" aria-valuenow="{{ porcentagem_nao }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar bg-danger" style="width: {{ porcentagem_nao|floatformat:1 }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ porcentagem_nao|floatformat:1 }}%</small>
+                    </div>
+
+                    <div class="alert alert-info alert-sm mb-3">
+                        <strong>Total de votos:</strong> {{ total_votos }}
+                    </div>
+
+                    <!-- Mensagem de voto -->
+                    {% if usuario_votou %}
+                        {% if voto_usuario.escolha %}
+                            <div class="alert alert-success alert-sm mb-2">
+                                <i class="bi bi-check-circle"></i> Você concordou com esta sugestão
+                            </div>
+                        {% else %}
+                            <div class="alert alert-danger alert-sm mb-2">
+                                <i class="bi bi-x-circle"></i> Você discordou desta sugestão
+                            </div>
+                        {% endif %}
+                        <p class="text-center">
+                            <a href="{% url 'editar-voto' voto_usuario.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Mudar voto
+                            </a>
+                        </p>
+                    {% else %}
+                        <p class="text-center">
+                            <a href="{% url 'inserir-voto-sugestao' sugestao.pk %}" class="btn btn-primary w-100">
+                                <i class="bi bi-hand-thumbs-up"></i> Votar
+                            </a>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comentários -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 mb-3">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-chat-dots"></i> Comentários 
+                        <span class="badge bg-primary">{{ comentarios.count }}</span>
+                    </h5>
+
+                    <!-- Formulário de novo comentário -->
+                    <div class="mb-4 pb-3 border-bottom">
+                        <h6 class="mb-2">Adicionar comentário:</h6>
+                        <form method="POST" action="{% url 'inserir-comentario' %}" class="d-flex flex-column gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="sugestao" value="{{ sugestao.pk }}">
+                            <textarea 
+                                name="texto" 
+                                class="form-control" 
+                                placeholder="Compartilhe sua opinião sobre esta sugestão..." 
+                                rows="3" 
+                                required
+                            ></textarea>
+                            <button type="submit" class="btn btn-primary align-self-end">
+                                <i class="bi bi-send"></i> Enviar Comentário
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Lista de comentários -->
+                    {% if comentarios %}
+                        <div class="comentarios-lista">
+                            {% for comentario in comentarios %}
+                            <div class="mb-3 p-3 bg-light rounded-2 border-start border-3 border-primary">
+                                <!-- Cabeçalho do comentário -->
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <strong class="text-dark">{{ comentario.usuario.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar-event"></i> 
+                                            {{ comentario.data_comentario|date:"d/m/Y H:i" }}
+                                        </small>
+                                    </div>
+                                    {% if request.user == comentario.usuario %}
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" style="background-color: #f8f9fa !important;">
+                                            <li>
+                                                <a class="dropdown-item" href="{% url 'editar-comentario' comentario.pk %}">
+                                                    <i class="bi bi-pencil"></i> Editar
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="{% url 'excluir-comentario' comentario.pk %}">
+                                                    <i class="bi bi-trash"></i> Excluir
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Texto do comentário -->
+                                <p class="mb-0 text-dark" style="white-space: pre-wrap;">{{ comentario.texto }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle"></i> Nenhum comentário ainda. Seja o primeiro a comentar!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .sugestao-detail-container {
+        margin-top: 60px;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.65rem;
+    }
+
+    .alert-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    .comentarios-lista {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .border-start {
+        border-left-width: 4px !important;
+    }
+
+    .progress {
+        height: 20px;
+    }
+
+    .btn {
+        transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 991px) {
+        .sticky-top {
+            position: relative !important;
+            top: 0 !important;
+        }
+    }
+</style>
+
+{% endblock %}

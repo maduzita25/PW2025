@@ -4,7 +4,7 @@ from .views import (
     IndexView, SobreView, SugestoesView,
     CampusCreate, CategoriaCreate, SugestaoCreate, ComentarioCreate, CursoCreate, TipoSolicitacaoCreate, PerfilCreate,
     CampusUpdate, CategoriaUpdate, SugestaoUpdate, ComentarioUpdate, CursoUpdate, TipoSolicitacaoUpdate, PerfilUpdate,
-    CampusList, CategoriaList, SugestaoList, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
+    CampusList, CategoriaList, SugestaoList, SugestaoDetail, ComentarioList, CursoList, TipoSolicitacaoList, PerfilList,
     CampusDelete, CategoriaDelete, SugestaoDelete, ComentarioDelete, CursoDelete, TipoSolicitacaoDelete, PerfilDelete,
     VotoCreate, VotoUpdate, VotoList, VotoDelete,
     CadastroUsuarioView, MeuPerfilUpdate
@@ -81,4 +81,7 @@ urlpatterns = [
     path("excluir/tiposolicitacao/<int:pk>/", TipoSolicitacaoDelete.as_view(), name="excluir-tiposolicitacao"),
     path("excluir/perfil/<int:pk>/", PerfilDelete.as_view(), name="excluir-perfil"),
     path("excluir/voto/<int:pk>/", VotoDelete.as_view(), name="excluir-voto"),
+
+    # Detail de registros    
+    path("ver/sugestao/<int:pk>/", SugestaoDetail.as_view(), name="ver-sugestao"),
 ]

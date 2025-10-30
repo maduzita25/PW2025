@@ -1,10 +1,11 @@
 from django.contrib.messages.views import SuccessMessageMixin
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from braces.views import    GroupRequiredMixin
+from braces.views import GroupRequiredMixin
 from django.shortcuts import get_object_or_404
+from django.db.models import Count, Q
 
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil, Voto
 from django.contrib.auth.models import User, Group
@@ -298,47 +299,159 @@ class VotoUpdate(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 class CampusList(LoginRequiredMixin, ListView):
     model = Campus
     template_name = 'paginas/listas/campus.html'
+    paginate_by = 20
 
 
 class CategoriaList(LoginRequiredMixin, ListView):
     model = Categoria
     template_name = 'paginas/listas/categoria.html'
+    paginate_by = 20
 
 
 class SugestaoList(LoginRequiredMixin, ListView):
     model = Sugestao
     template_name = 'paginas/listas/sugestao.html'
+    paginate_by = 15
+    
+    def get_queryset(self):
+        return Sugestao.objects.select_related(
+            'usuario',
+            'campus',
+            'categoria'
+        ).prefetch_related(
+            'votos',
+            'comentarios'
+        ).order_by('-data_criacao')
+
+
+class SugestaoDetail(LoginRequiredMixin, DetailView):
+    model = Sugestao
+    template_name = 'paginas/sugestao_detail.html'
+    context_object_name = 'sugestao'
+
+    def get_queryset(self):
+        return Sugestao.objects.select_related(
+            'usuario',
+            'campus',
+            'categoria'
+        ).prefetch_related('comentarios')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sugestao = self.get_object()
+        
+        # Comentários organizados por data (mais recentes primeiro)
+        context['comentarios'] = sugestao.comentarios.all()
+        
+        # Otimizado: Uma única query com agregação para votos
+        voto_usuario = sugestao.votos.filter(usuario=self.request.user).first()
+        context['usuario_votou'] = voto_usuario is not None
+        context['voto_usuario'] = voto_usuario
+        
+        # Agregação de votos em uma única query
+        votos_agg = sugestao.votos.aggregate(
+            total=Count('id'),
+            sim=Count('id', filter=Q(escolha=True)),
+            nao=Count('id', filter=Q(escolha=False))
+        )
+        context['total_votos'] = votos_agg['total']
+        context['votos_sim'] = votos_agg['sim']
+        context['votos_nao'] = votos_agg['nao']
+        
+        # Calcular porcentagem
+        if context['total_votos'] > 0:
+            context['porcentagem_sim'] = (context['votos_sim'] / context['total_votos']) * 100
+            context['porcentagem_nao'] = (context['votos_nao'] / context['total_votos']) * 100
+        else:
+            context['porcentagem_sim'] = 0
+            context['porcentagem_nao'] = 0
+        
+        # Verificar se é o autor
+        context['eh_autor'] = sugestao.usuario == self.request.user
+        
+        return context
+
 
 
 class ComentarioList(LoginRequiredMixin, ListView):
     model = Comentario
     template_name = 'paginas/listas/comentario.html'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        return Comentario.objects.select_related(
+            'usuario',
+            'sugestao'
+        ).order_by('-data_comentario')
 
 
 class CursoList(LoginRequiredMixin, ListView):
     model = Curso
     template_name = 'paginas/listas/curso.html'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        return Curso.objects.select_related('campus').order_by('nome')
 
 
 class TipoSolicitacaoList(LoginRequiredMixin, ListView):
     model = TipoSolicitacao
     template_name = 'paginas/listas/tiposolicitacao.html'
+    paginate_by = 20
 
 #fazer uma herança para ter tudo que tem na solicitaçãolist
 class MinhasSolicitacoes(TipoSolicitacaoList):
+    paginate_by = 20
 
     def get_queryset(self):
-        qs = TipoSolicitacao.objects.filter(solicitado_por=self.request.user)
+        qs = TipoSolicitacao.objects.filter(solicitado_por=self.request.user).order_by('-id')
         return qs
 
 class PerfilList(LoginRequiredMixin, ListView):
     model = Perfil
     template_name = 'paginas/listas/perfil.html'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        return Perfil.objects.select_related(
+            'usuario',
+            'campus'
+        ).order_by('nome')
 
 
 class VotoList(LoginRequiredMixin, ListView):
     model = Voto
     template_name = 'paginas/listas/voto.html'
+    paginate_by = 20
+    context_object_name = 'votos'
+
+    def get_queryset(self):
+        # Otimizar com select_related para evitar N+1 queries
+        return Voto.objects.select_related(
+            'usuario',
+            'sugestao',
+            'sugestao__usuario',
+            'sugestao__campus',
+            'sugestao__categoria'
+        ).order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Verificar se é administrador (cacheado no usuário)
+        context['eh_admin'] = self.request.user.groups.filter(name='Administrador').exists()
+        
+        # Otimizado: Uma única query de agregação ao invés de 3 queries separadas
+        votos_stats = Voto.objects.aggregate(
+            total=Count('id'),
+            concordam=Count('id', filter=Q(escolha=True)),
+            discordam=Count('id', filter=Q(escolha=False))
+        )
+        context['total_votos'] = votos_stats['total']
+        context['votos_concordam'] = votos_stats['concordam']
+        context['votos_discordam'] = votos_stats['discordam']
+        
+        return context
 
 
 # DELETE VIEWS

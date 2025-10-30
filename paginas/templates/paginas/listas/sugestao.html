@@ -1,46 +1,327 @@
 {% extends "paginas/index.html" %}
 
-
-
 {% load static %}
 
 {% block conteudo %}
-<h3 class="text-center pb-2 mb-4 border-bottom">Lista de Sugestões</h3>
+<div class="mt-4">
+    
+    <!-- Cabeçalho -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="mb-0">
+                <i class="bi bi-lightbulb"></i> Sugestões de Melhorias
+            </h2>
+            <p class="text-muted mb-0">{{ object_list.count }} sugestão{{ object_list.count|pluralize }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a class="btn btn-primary" href="{% url 'inserir-sugestao' %}">
+                <i class="bi bi-plus-circle"></i> Nova Sugestão
+            </a>
+        </div>
+    </div>
 
-<div class="row g-3">
+    <!-- Barra de Controle -->
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Busca -->
+                <div class="col-md-6 col-lg-4">
+                    <input type="text" class="form-control" id="searchSugestao" placeholder="🔍 Buscar sugestão..." >
+                </div>
 
-    {% for sugestao in object_list %}
-    <div class="col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">{{ sugestao.titulo }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">{{ sugestao.campus.nome }} | {{ sugestao.categoria.nome }}</h6>
-                <p class="card-text">{{ sugestao.descricao|truncatechars:100 }}</p>
-                <ul class="list-group list-group-flush mb-2">
-                    <li class="list-group-item"><strong>Data:</strong> {{ sugestao.data_criacao|date:"d/m/Y H:i" }}</li>
-                    <li class="list-group-item"><strong>Status:</strong> {{ sugestao.status }}</li>
-                    <li class="list-group-item"><strong>Prioridade:</strong> {{ sugestao.prioridade }}</li>
-                    <li class="list-group-item"><strong>Usuário:</strong> {{ sugestao.usuario.username }}</li>
-                    <li class="list-group-item">
-                        <strong>Votos:</strong> <span class="text-success">👍 {{ sugestao.votos_sim }}</span> &nbsp; <span class="text-danger">👎 {{ sugestao.votos_nao }}</span>
-                    </li>
-                </ul>
-                <div class="d-flex justify-content-center gap-2">
-                    <a class="btn btn-primary btn-sm" href="{% url 'inserir-voto-sugestao' sugestao.pk %}">✏️ Votar</a>
-                    <a class="btn btn-warning btn-sm" href="{% url 'editar-sugestao' sugestao.pk %}">✏️ Editar</a>
-                    <a class="btn btn-danger btn-sm" href="{% url 'excluir-sugestao' sugestao.pk %}">🗑️ Excluir</a>
+                <!-- Filtro por Status -->
+                <div class="col-md-6 col-lg-3">
+                    <select class="form-select" id="filterStatus">
+                        <option value="">📊 Todos os Status</option>
+                        <option value="aberta">🟢 Aberta</option>
+                        <option value="analise">🟡 Em Análise</option>
+                        <option value="andamento">🔵 Em Andamento</option>
+                        <option value="concluida">✅ Concluída</option>
+                        <option value="rejeitada">❌ Rejeitada</option>
+                    </select>
+                </div>
+
+                <!-- Filtro por Prioridade -->
+                <div class="col-md-6 col-lg-3">
+                    <select class="form-select" id="filterPrioridade">
+                        <option value="">⭐ Todas as Prioridades</option>
+                        <option value="alta">🔴 Alta</option>
+                        <option value="media">🟠 Média</option>
+                        <option value="baixa">🟢 Baixa</option>
+                    </select>
+                </div>
+
+                <!-- Ordenação -->
+                <div class="col-md-6 col-lg-2">
+                    <select class="form-select" id="sortBy">
+                        <option value="recentes">📅 Mais Recentes</option>
+                        <option value="antigas">📅 Mais Antigas</option>
+                        <option value="votos">🗳️ Mais Votadas</option>
+                        <option value="comentarios">💬 Mais Comentadas</option>
+                    </select>
                 </div>
             </div>
         </div>
     </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="alert alert-info text-center">Nenhuma sugestão cadastrada.</div>
+
+    <!-- Estatísticas Rápidas -->
+    <div class="row g-3 mb-4 justify-content-center">
+        <div class="col-md-3 col-lg-2">
+            <div class="card text-center border-0 shadow-sm bg-light">
+                <div class="card-body p-2">
+                    <h6 class="card-title text-muted mb-1">Total</h6>
+                    <h4 class="text-primary mb-0">{{ object_list.count }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2">
+            <div class="card text-center border-0 shadow-sm bg-light">
+                <div class="card-body p-2">
+                    <h6 class="card-title text-muted mb-1">Abertas</h6>
+                    <h4 class="text-success mb-0" id="countAberta">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2">
+            <div class="card text-center border-0 shadow-sm bg-light">
+                <div class="card-body p-2">
+                    <h6 class="card-title text-muted mb-1">Análise</h6>
+                    <h4 class="text-warning mb-0" id="countAnalise">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2">
+            <div class="card text-center border-0 shadow-sm bg-light">
+                <div class="card-body p-2">
+                    <h6 class="card-title text-muted mb-1">Concluídas</h6>
+                    <h4 class="text-info mb-0" id="countConcluida">0</h4>
+                </div>
+            </div>
+        </div>
     </div>
-    {% endfor %}
+
+    <!-- Lista de Sugestões -->
+    {% if object_list %}
+        <div class="row g-3" id="sugestoesContainer">
+            {% for sugestao in object_list %}
+            <div class="col-md-6 col-lg-4 sugestao-card" data-status="{{ sugestao.status }}" data-prioridade="{{ sugestao.prioridade|lower }}" data-titulo="{{ sugestao.titulo|lower }}">
+                <div class="card h-100 shadow border">
+                    <!-- Badge de Status no topo -->
+                    <div class="card-header bg-transparent border-0 pb-0 pt-3 px-3">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <!-- Status Badge -->
+                            {% if sugestao.status == 'aberta' %}
+                                <span class="badge bg-success">🟢 Aberta</span>
+                            {% elif sugestao.status == 'analise' %}
+                                <span class="badge bg-warning">🟡 Em Análise</span>
+                            {% elif sugestao.status == 'andamento' %}
+                                <span class="badge bg-info">🔵 Em Andamento</span>
+                            {% elif sugestao.status == 'concluida' %}
+                                <span class="badge bg-primary">✅ Concluída</span>
+                            {% elif sugestao.status == 'rejeitada' %}
+                                <span class="badge bg-danger">❌ Rejeitada</span>
+                            {% endif %}
+
+                            <!-- Prioridade Badge -->
+                            {% if sugestao.prioridade == 'alta' %}
+                                <span class="badge bg-danger-subtle text-danger">🔴 Alta</span>
+                            {% elif sugestao.prioridade == 'media' %}
+                                <span class="badge bg-warning-subtle text-warning">🟠 Média</span>
+                            {% elif sugestao.prioridade == 'baixa' %}
+                                <span class="badge bg-info-subtle text-info">🟢 Baixa</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Corpo do Card -->
+                    <div class="card-body">
+                        <!-- Título -->
+                        <h5 class="card-title text-dark mb-2">{{ sugestao.titulo }}</h5>
+
+                        <!-- Campus e Categoria com o justify between -->
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">
+                                <i class="bi bi-geo-alt"></i> {{ sugestao.campus.nome }}
+                            </span>
+                            <span class="text-muted">
+                                <i class="bi bi-tag"></i> {{ sugestao.categoria.nome }}
+                            </span>
+                        </div>
+
+                        <!-- Descrição truncada -->
+                        <p class="card-text text-muted small" title="{{ sugestao.descricao }}">
+                            {{ sugestao.descricao|truncatechars:90 }}
+                        </p>
+
+                        <!-- Info Line 1: Data e Autor -->
+                        <div class="row g-2 mb-2 small">
+                            <div class="col-6">
+                                <i class="bi bi-calendar-event text-muted"></i>
+                                <span class="text-muted">{{ sugestao.data_criacao|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="col-6 text-end">
+                                <i class="bi bi-person-circle text-muted"></i>
+                                <span class="text-muted">{{ sugestao.usuario.username }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Votos e Comentários -->
+                        <div class="row g-2 p-2 bg-light rounded-2 mb-3">
+                            <div class="col-6 text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                    <span class="fs-4">👍</span>
+                                    <span class="fs-4 text-success fw-bold">{{ sugestao.votos_sim }}</span>
+                                </div>
+                                <small class="text-muted">Concordam</small>
+                            </div>
+                            <div class="col-6 text-center border-start">
+                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                    <span class="fs-4">👎</span>
+                                    <span class="fs-4 text-danger fw-bold">{{ sugestao.votos_nao }}</span>
+                                </div>
+                                <small class="text-muted">Discordam</small>
+                            </div>
+                        </div>
+
+                        <!-- Comentários -->
+                        <div class="alert alert-light mb-3 py-2 px-2 d-flex align-items-center gap-2">
+                            <i class="bi bi-chat-dots text-info"></i>
+                            <small>
+                                <strong>{{ sugestao.comentarios.count }}</strong> 
+                                comentário{{ sugestao.comentarios.count|pluralize }}
+                            </small>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="d-flex flex-column gap-2">
+                            <a class="btn btn-outline-success btn-sm" href="{% url 'ver-sugestao' sugestao.pk %}">
+                                <i class="bi bi-eye"></i> Ver Detalhes
+                            </a>
+                            <div class="btn-group w-100" role="group">
+                                <a class="btn btn-outline-primary btn-sm" href="{% url 'inserir-voto-sugestao' sugestao.pk %}" title="Adicionar voto">
+                                    <i class="bi bi-hand-thumbs-up"></i> Votar
+                                </a>
+                                <a class="btn btn-outline-warning btn-sm" href="{% url 'editar-sugestao' sugestao.pk %}" title="Editar sugestão">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a class="btn btn-outline-danger btn-sm" href="{% url 'excluir-sugestao' sugestao.pk %}" title="Excluir sugestão">
+                                    <i class="bi bi-trash"></i> Excluir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Script de Filtro e Busca -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('searchSugestao');
+                const statusFilter = document.getElementById('filterStatus');
+                const prioridadeFilter = document.getElementById('filterPrioridade');
+                const sortBySelect = document.getElementById('sortBy');
+                const sugestoesContainer = document.getElementById('sugestoesContainer');
+                const cards = document.querySelectorAll('.sugestao-card');
+
+                function filterAndSort() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    const selectedStatus = statusFilter.value;
+                    const selectedPrioridade = prioridadeFilter.value;
+                    const sortBy = sortBySelect.value;
+
+                    // Filtrar
+                    let visibleCards = Array.from(cards).filter(card => {
+                        const titulo = card.dataset.titulo;
+                        const status = card.dataset.status;
+                        const prioridade = card.dataset.prioridade;
+
+                        const matchSearch = titulo.includes(searchTerm);
+                        const matchStatus = !selectedStatus || status === selectedStatus;
+                        const matchPrioridade = !selectedPrioridade || prioridade === selectedPrioridade;
+
+                        return matchSearch && matchStatus && matchPrioridade;
+                    });
+
+                    // Ordenar
+                    visibleCards.sort((a, b) => {
+                        // Adicionar data e votos como data attributes para ordenação
+                        // Por enquanto apenas reordenar por visibilidade
+                        return 0;
+                    });
+
+                    // Atualizar visibilidade
+                    cards.forEach(card => {
+                        card.style.display = visibleCards.includes(card) ? '' : 'none';
+                    });
+
+                    // Atualizar contadores
+                    updateCounters();
+
+                    // Mensagem de nenhum resultado
+                    const noResults = visibleCards.length === 0;
+                    if (noResults) {
+                        if (!document.getElementById('noResults')) {
+                            const noResultsDiv = document.createElement('div');
+                            noResultsDiv.id = 'noResults';
+                            noResultsDiv.className = 'col-12';
+                            noResultsDiv.innerHTML = '<div class="alert alert-info text-center"><i class="bi bi-info-circle"></i> Nenhuma sugestão encontrada com esses filtros.</div>';
+                            sugestoesContainer.appendChild(noResultsDiv);
+                        }
+                    } else {
+                        const noResultsDiv = document.getElementById('noResults');
+                        if (noResultsDiv) {
+                            noResultsDiv.remove();
+                        }
+                    }
+                }
+
+                function updateCounters() {
+                    const allCards = document.querySelectorAll('.sugestao-card:not([style*="display: none"])');
+                    let countAberta = 0, countAnalise = 0, countConcluida = 0;
+
+                    allCards.forEach(card => {
+                        const status = card.dataset.status;
+                        if (status === 'aberta') countAberta++;
+                        else if (status === 'analise') countAnalise++;
+                        else if (status === 'concluida') countConcluida++;
+                    });
+
+                    document.getElementById('countAberta').textContent = countAberta;
+                    document.getElementById('countAnalise').textContent = countAnalise;
+                    document.getElementById('countConcluida').textContent = countConcluida;
+                }
+
+                // Event listeners
+                searchInput.addEventListener('keyup', filterAndSort);
+                statusFilter.addEventListener('change', filterAndSort);
+                prioridadeFilter.addEventListener('change', filterAndSort);
+                sortBySelect.addEventListener('change', filterAndSort);
+
+                // Inicializar contadores
+                updateCounters();
+            });
+        </script>
+
+    {% else %}
+        <!-- Nenhuma sugestão -->
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card border-0 shadow-sm text-center py-5">
+                    <div class="card-body">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                        <h4 class="mt-3 text-muted">Nenhuma sugestão cadastrada</h4>
+                        <p class="text-muted mb-3">Seja o primeiro a compartilhar uma ideia de melhoria!</p>
+                        <a class="btn btn-primary btn-lg" href="{% url 'inserir-sugestao' %}">
+                            <i class="bi bi-plus-circle"></i> Criar Sugestão
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
 </div>
-<br>
-<p class="text-center">
-    <a class="btn btn-primary" href="{% url 'inserir-sugestao' %}">Adicionar Nova Sugestão</a>
-</p>
+
 {% endblock %}
