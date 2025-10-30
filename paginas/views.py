@@ -78,6 +78,14 @@ class CadastroUsuarioView(CreateView):
 
 class IndexView(TemplateView):
     template_name = "paginas/index.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_sugestoes'] = Sugestao.objects.count()
+        context['total_votos'] = Voto.objects.count()
+        context['total_comentarios'] = Comentario.objects.count()
+        context['total_usuarios'] = User.objects.filter(is_active=True).count()
+        return context
 
 
 class SobreView(TemplateView):
