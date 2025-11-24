@@ -9,6 +9,7 @@ from .views import (
     VotoCreate, VotoUpdate, VotoList, VotoDelete,
     CadastroUsuarioView, MeuPerfilUpdate
 )
+from .views import vote_ajax, change_vote_ajax, comment_ajax
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -84,6 +85,10 @@ urlpatterns = [
 
     # Detail de registros    
     path("ver/sugestao/<int:pk>/", SugestaoDetail.as_view(), name="ver-sugestao"),
+     # Endpoints AJAX
+     path("ajax/votar/sugestao/", vote_ajax, name="ajax-votar-sugestao"),
+     path("ajax/alterar-voto/", change_vote_ajax, name="ajax-alterar-voto"),
+     path("ajax/comentario/", comment_ajax, name="ajax-comentario"),
     
     # Relatório
     path("relatorio/votacao/", RelatorioVotacaoView.as_view(), name="relatorio-votacao"),

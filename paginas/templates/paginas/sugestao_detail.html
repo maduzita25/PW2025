@@ -124,27 +124,27 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-2">
                             <strong class="text-success">👍 Concordo</strong>
-                            <span class="badge bg-success">{{ votos_sim }}</span>
+                            <span id="votos-sim" class="badge bg-success">{{ votos_sim }}</span>
                         </div>
-                        <div class="progress mb-2" role="progressbar" aria-valuenow="{{ porcentagem_sim }}" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar bg-success" style="width: {{ porcentagem_sim|floatformat:1 }}%"></div>
+                        <div id="progress-sim" class="progress mb-2" role="progressbar" aria-valuenow="{{ porcentagem_sim }}" aria-valuemin="0" aria-valuemax="100">
+                            <div id="progress-bar-sim" class="progress-bar bg-success" style="width: {{ porcentagem_sim|floatformat:1 }}%"></div>
                         </div>
-                        <small class="text-muted">{{ porcentagem_sim|floatformat:1 }}%</small>
+                        <small id="pct-sim" class="text-muted">{{ porcentagem_sim|floatformat:1 }}%</small>
                     </div>
 
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-2">
                             <strong class="text-danger">👎 Discordo</strong>
-                            <span class="badge bg-danger">{{ votos_nao }}</span>
+                            <span id="votos-nao" class="badge bg-danger">{{ votos_nao }}</span>
                         </div>
-                        <div class="progress mb-2" role="progressbar" aria-valuenow="{{ porcentagem_nao }}" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar bg-danger" style="width: {{ porcentagem_nao|floatformat:1 }}%"></div>
+                        <div id="progress-nao" class="progress mb-2" role="progressbar" aria-valuenow="{{ porcentagem_nao }}" aria-valuemin="0" aria-valuemax="100">
+                            <div id="progress-bar-nao" class="progress-bar bg-danger" style="width: {{ porcentagem_nao|floatformat:1 }}%"></div>
                         </div>
-                        <small class="text-muted">{{ porcentagem_nao|floatformat:1 }}%</small>
+                        <small id="pct-nao" class="text-muted">{{ porcentagem_nao|floatformat:1 }}%</small>
                     </div>
 
                     <div class="alert alert-info alert-sm mb-3">
-                        <strong>Total de votos:</strong> {{ total_votos }}
+                        <strong>Total de votos:</strong> <span id="total-votos">{{ total_votos }}</span>
                     </div>
 
                     <!-- Mensagem de voto -->
@@ -164,10 +164,13 @@
                             </a>
                         </p>
                     {% else %}
-                        <p class="text-center">
-                            <a href="{% url 'inserir-voto-sugestao' sugestao.pk %}" class="btn btn-primary w-100">
-                                <i class="bi bi-hand-thumbs-up"></i> Votar
-                            </a>
+                        <p class="text-center" id="voto-area">
+                            <button type="button" class="btn btn-success btn-votar w-100 mb-2" data-escolha="true" data-sugestao="{{ sugestao.pk }}">
+                                <i class="bi bi-hand-thumbs-up"></i> Concordo
+                            </button>
+                            <button type="button" class="btn btn-danger btn-votar w-100" data-escolha="false" data-sugestao="{{ sugestao.pk }}">
+                                <i class="bi bi-hand-thumbs-down"></i> Discordo
+                            </button>
                         </p>
                     {% endif %}
                 </div>
@@ -182,23 +185,24 @@
                 <div class="card-body">
                     <h5 class="card-title mb-3">
                         <i class="bi bi-chat-dots"></i> Comentários 
-                        <span class="badge bg-primary">{{ comentarios.count }}</span>
+                        <span id="comentarios-count" class="badge bg-primary">{{ comentarios.count }}</span>
                     </h5>
 
                     <!-- Formulário de novo comentário -->
                     <div class="mb-4 pb-3 border-bottom">
                         <h6 class="mb-2">Adicionar comentário:</h6>
-                        <form method="POST" action="{% url 'inserir-comentario' %}" class="d-flex flex-column gap-2">
+                        <form id="form-comentario" method="POST" action="{% url 'inserir-comentario' %}" class="d-flex flex-column gap-2">
                             {% csrf_token %}
-                            <input type="hidden" name="sugestao" value="{{ sugestao.pk }}">
+                            <input type="hidden" name="sugestao" id="comentario-sugestao" value="{{ sugestao.pk }}">
                             <textarea 
+                                id="comentario-texto"
                                 name="texto" 
                                 class="form-control" 
                                 placeholder="Compartilhe sua opinião sobre esta sugestão..." 
                                 rows="3" 
                                 required
                             ></textarea>
-                            <button type="submit" class="btn btn-primary align-self-end">
+                            <button type="submit" id="btn-enviar-comentario" class="btn btn-primary align-self-end">
                                 <i class="bi bi-send"></i> Enviar Comentário
                             </button>
                         </form>
@@ -311,4 +315,93 @@
     }
 </style>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Pegar cookie CSRF (função padrão Django)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $(function() {
+        const csrftoken = getCookie('csrftoken');
+
+        $('.btn-votar').on('click', function(e) {
+            e.preventDefault();
+            const btn = $(this);
+            const escolha = btn.data('escolha');
+            const sugestaoId = btn.data('sugestao');
+
+            // Desabilitar botões temporariamente
+            $('.btn-votar').prop('disabled', true);
+
+            $.ajax({
+                url: "{% url 'ajax-votar-sugestao' %}",
+                method: 'POST',
+                data: {
+                    sugestao: sugestaoId,
+                    escolha: escolha
+                },
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                success: function(resp) {
+                    if (resp.success) {
+                        // Atualiza contadores
+                        $('#votos-sim').text(resp.votos_sim);
+                        $('#votos-nao').text(resp.votos_nao);
+                        $('#total-votos').text(resp.total_votos);
+                        $('#progress-bar-sim').css('width', resp.porcentagem_sim + '%');
+                        $('#progress-bar-nao').css('width', resp.porcentagem_nao + '%');
+                        $('#pct-sim').text(resp.porcentagem_sim + '%');
+                        $('#pct-nao').text(resp.porcentagem_nao + '%');
+
+                        // Substitui área de voto por mensagem do usuário
+                        let mensagem = '';
+                        if (resp.escolha_usuario) {
+                            mensagem = '<div class="alert alert-success alert-sm mb-2"><i class="bi bi-check-circle"></i> Você concordou com esta sugestão</div>';
+                        } else {
+                            mensagem = '<div class="alert alert-danger alert-sm mb-2"><i class="bi bi-x-circle"></i> Você discordou desta sugestão</div>';
+                        }
+
+                        mensagem += '<p class="text-center"><a href="#" class="btn btn-sm btn-warning" id="btn-mudar-voto"><i class="bi bi-pencil"></i> Mudar voto</a></p>';
+
+                        $('#voto-area').html(mensagem);
+                    } else {
+                        alert(resp.error || 'Erro ao registrar voto');
+                        $('.btn-votar').prop('disabled', false);
+                    }
+                },
+                error: function(xhr) {
+                    let msg = 'Erro na requisição.';
+                    if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                    alert(msg);
+                    $('.btn-votar').prop('disabled', false);
+                }
+            });
+        });
+
+        // Handler para 'mudar voto' (abre a página de edição de voto)
+        $(document).on('click', '#btn-mudar-voto', function(e) {
+            e.preventDefault();
+            // redireciona para a página de edição de voto (se existir)
+            // Tentamos montar a URL a partir do contexto: editar-voto precisa do pk do voto, que não temos aqui.
+            // Simples fallback: redirecionar para listar votos para o usuário.
+            window.location.href = "{% url 'listar-voto' %}";
+        });
+    });
+</script>
 {% endblock %}

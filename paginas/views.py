@@ -11,6 +11,10 @@ from django.db.models.functions import TruncDate
 from .models import Campus, Categoria, Sugestao, Comentario, Curso, TipoSolicitacao, Perfil, Voto
 from django.contrib.auth.models import User, Group
 from .forms import UsuarioCadastroForm, VotoForm
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 
 # @login_required
@@ -205,6 +209,143 @@ class VotoCreate(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
         form.instance.usuario = self.request.user
         return super().form_valid(form)
+
+
+# Endpoint AJAX para registrar voto sem recarregar a página
+@login_required
+@require_POST
+def vote_ajax(request):
+    """Recebe POST (sugestao, escolha) e retorna JSON com os novos totais."""
+    user = request.user
+    sugestao_id = request.POST.get('sugestao')
+    escolha = request.POST.get('escolha')
+
+    if not sugestao_id or escolha is None:
+        return JsonResponse({'success': False, 'error': 'Parâmetros faltando.'}, status=400)
+
+    try:
+        sugestao = get_object_or_404(Sugestao, pk=int(sugestao_id))
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Sugestão não encontrada.'}, status=404)
+
+    # Já votou?
+    if Voto.objects.filter(usuario=user, sugestao=sugestao).exists():
+        return JsonResponse({'success': False, 'error': 'Você já votou nesta sugestão.'}, status=400)
+
+    escolha_bool = str(escolha).lower() in ['true', '1', 'yes']
+
+    voto = Voto.objects.create(usuario=user, sugestao=sugestao, escolha=escolha_bool)
+
+    votos_agg = sugestao.votos.aggregate(
+        total=Count('id'),
+        sim=Count('id', filter=Q(escolha=True)),
+        nao=Count('id', filter=Q(escolha=False))
+    )
+
+    total = votos_agg.get('total') or 0
+    sim = votos_agg.get('sim') or 0
+    nao = votos_agg.get('nao') or 0
+
+    porcentagem_sim = (sim / total) * 100 if total > 0 else 0
+    porcentagem_nao = (nao / total) * 100 if total > 0 else 0
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Voto registrado com sucesso!',
+        'total_votos': total,
+        'votos_sim': sim,
+        'votos_nao': nao,
+        'porcentagem_sim': round(porcentagem_sim, 1),
+        'porcentagem_nao': round(porcentagem_nao, 1),
+        'escolha_usuario': escolha_bool,
+    })
+
+
+# Endpoint AJAX para alterar voto (mudar escolha)
+@login_required
+@require_POST
+def change_vote_ajax(request):
+    user = request.user
+    sugestao_id = request.POST.get('sugestao')
+    escolha = request.POST.get('escolha')
+
+    if not sugestao_id or escolha is None:
+        return JsonResponse({'success': False, 'error': 'Parâmetros faltando.'}, status=400)
+
+    try:
+        sugestao = get_object_or_404(Sugestao, pk=int(sugestao_id))
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Sugestão não encontrada.'}, status=404)
+
+    voto = Voto.objects.filter(usuario=user, sugestao=sugestao).first()
+    if not voto:
+        return JsonResponse({'success': False, 'error': 'Voto não encontrado para alteração.'}, status=404)
+
+    escolha_bool = str(escolha).lower() in ['true', '1', 'yes']
+    voto.escolha = escolha_bool
+    voto.save()
+
+    votos_agg = sugestao.votos.aggregate(
+        total=Count('id'),
+        sim=Count('id', filter=Q(escolha=True)),
+        nao=Count('id', filter=Q(escolha=False))
+    )
+
+    total = votos_agg.get('total') or 0
+    sim = votos_agg.get('sim') or 0
+    nao = votos_agg.get('nao') or 0
+
+    porcentagem_sim = (sim / total) * 100 if total > 0 else 0
+    porcentagem_nao = (nao / total) * 100 if total > 0 else 0
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Voto atualizado com sucesso!',
+        'total_votos': total,
+        'votos_sim': sim,
+        'votos_nao': nao,
+        'porcentagem_sim': round(porcentagem_sim, 1),
+        'porcentagem_nao': round(porcentagem_nao, 1),
+        'escolha_usuario': escolha_bool,
+    })
+
+
+# Endpoint AJAX para criar comentário sem reload
+@login_required
+@require_POST
+def comment_ajax(request):
+    user = request.user
+    sugestao_id = request.POST.get('sugestao')
+    texto = request.POST.get('texto')
+
+    if not sugestao_id or not texto:
+        return JsonResponse({'success': False, 'error': 'Parâmetros faltando.'}, status=400)
+
+    try:
+        sugestao = get_object_or_404(Sugestao, pk=int(sugestao_id))
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Sugestão não encontrada.'}, status=404)
+
+    comentario = Comentario.objects.create(
+        usuario=user,
+        sugestao=sugestao,
+        texto=texto
+    )
+
+    # montar resposta com dados do comentário criado
+    data_str = comentario.data_comentario.strftime('%d/%m/%Y %H:%M') if hasattr(comentario, 'data_comentario') else timezone.now().strftime('%d/%m/%Y %H:%M')
+    novo_count = sugestao.comentarios.count()
+
+    return JsonResponse({
+        'success': True,
+        'comentario': {
+            'id': comentario.pk,
+            'usuario': user.username,
+            'texto': comentario.texto,
+            'data': data_str
+        },
+        'novo_count': novo_count
+    })
 
 
 # UPDATE VIEWS
